@@ -5,6 +5,7 @@ plugins {
 indra {
   javaVersions {
     target(16)
+    previewFeaturesEnabled(true)
   }
 
   github("KyoriPowered", "adventure") {

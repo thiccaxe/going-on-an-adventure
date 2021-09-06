@@ -43,7 +43,7 @@ import static java.util.Objects.requireNonNull;
  * @param <C> the component type
  * @since 4.0.0
  */
-public sealed interface ScopedComponent<C extends Component> extends Component {
+public sealed interface ScopedComponent<C extends Component> extends Component permits BlockNBTComponent, EntityNBTComponent, KeybindComponent, ScoreComponent, SelectorComponent, StorageNBTComponent, TextComponent, TranslatableComponent {
   @Override
   @NotNull C children(final @NotNull List<? extends ComponentLike> children);
 
