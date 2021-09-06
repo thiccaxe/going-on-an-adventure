@@ -58,7 +58,7 @@ import org.jetbrains.annotations.NotNull;
  * @see TranslationRegistry
  * @since 4.0.0
  */
-public interface TranslatableComponent extends BuildableComponent<TranslatableComponent, TranslatableComponent.Builder>, ScopedComponent<TranslatableComponent> {
+public sealed interface TranslatableComponent extends BuildableComponent<TranslatableComponent, TranslatableComponent.Builder>, ScopedComponent<TranslatableComponent> permits TranslatableComponentImpl {
   /**
    * Gets the translation key.
    *

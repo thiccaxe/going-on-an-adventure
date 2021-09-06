@@ -21,24 +21,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.text;
+module net.kyori.adventure {
+  requires static transitive org.jetbrains.annotations;
+  requires net.kyori.examination.api;
+  requires net.kyori.examination.string;
+  requires net.kyori.adventure.key;
 
-import net.kyori.adventure.util.Buildable;
-import org.jetbrains.annotations.NotNull;
-
-/**
- * A component which may be built.
- *
- * @param <C> the component type
- * @param <B> the builder type
- * @since 4.0.0
- */
-public sealed interface BuildableComponent<C extends BuildableComponent<C, B>, B extends ComponentBuilder<C, B>> extends Buildable<C, B>, Component permits KeybindComponent, NBTComponent, ScoreComponent, SelectorComponent, TextComponent, TranslatableComponent {
-  /**
-   * Create a builder from this component.
-   *
-   * @return the builder
-   */
-  @Override
-  @NotNull B toBuilder();
+  exports net.kyori.adventure;
+  exports net.kyori.adventure.audience;
+  exports net.kyori.adventure.bossbar;
+  exports net.kyori.adventure.identity;
+  exports net.kyori.adventure.inventory;
+  exports net.kyori.adventure.nbt.api;
+  exports net.kyori.adventure.permission;
+  exports net.kyori.adventure.pointer;
+  exports net.kyori.adventure.sound;
+  exports net.kyori.adventure.text;
+  exports net.kyori.adventure.text.event;
+  exports net.kyori.adventure.text.flattener;
+  exports net.kyori.adventure.text.format;
+  exports net.kyori.adventure.text.renderer;
+  exports net.kyori.adventure.text.serializer;
+  exports net.kyori.adventure.title;
+  exports net.kyori.adventure.translation;
+  exports net.kyori.adventure.util;
 }

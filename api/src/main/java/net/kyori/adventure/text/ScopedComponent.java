@@ -43,7 +43,7 @@ import static java.util.Objects.requireNonNull;
  * @param <C> the component type
  * @since 4.0.0
  */
-public interface ScopedComponent<C extends Component> extends Component {
+public sealed interface ScopedComponent<C extends Component> extends Component {
   @Override
   @NotNull C children(final @NotNull List<? extends ComponentLike> children);
 
@@ -77,7 +77,7 @@ public interface ScopedComponent<C extends Component> extends Component {
   @Override
   @SuppressWarnings("unchecked")
   default @NotNull C append(final @NotNull Component component) {
-    if (component == Component.empty()) return (C) this;
+    if (component == Component.empty()) return (C) (Object) this;
     final List<Component> oldChildren = this.children();
     return this.children(MonkeyBars.addOne(oldChildren, requireNonNull(component, "component")));
   }

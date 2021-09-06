@@ -38,7 +38,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @since 4.0.0
  */
-public interface TextComponent extends BuildableComponent<TextComponent, TextComponent.Builder>, ScopedComponent<TextComponent> {
+public sealed interface TextComponent extends BuildableComponent<TextComponent, TextComponent.Builder>, ScopedComponent<TextComponent> permits TextComponentImpl {
   /**
    * Creates a component with {@code components} as the children.
    *

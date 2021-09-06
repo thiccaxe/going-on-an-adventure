@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.0.0
  */
-public interface SelectorComponent extends BuildableComponent<SelectorComponent, SelectorComponent.Builder>, ScopedComponent<SelectorComponent> {
+public sealed interface SelectorComponent extends BuildableComponent<SelectorComponent, SelectorComponent.Builder>, ScopedComponent<SelectorComponent> permits SelectorComponentImpl {
   /**
    * Gets the selector pattern.
    *

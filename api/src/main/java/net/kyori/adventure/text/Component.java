@@ -99,7 +99,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * @since 4.0.0
  */
 @ApiStatus.NonExtendable
-public interface Component extends ComponentBuilderApplicable, ComponentLike, Examinable, HoverEventSource<Component> {
+public sealed interface Component extends ComponentBuilderApplicable, ComponentLike, Examinable, HoverEventSource<Component> permits AbstractComponent, BuildableComponent, ScopedComponent {
   /**
    * A predicate that checks equality of two {@code Component}s using {@link Objects#equals(Object, Object)}.
    *

@@ -47,7 +47,7 @@ import org.jetbrains.annotations.Nullable;
  * @since 4.0.0
  * @sinceMinecraft 1.14
  */
-public interface NBTComponent<C extends NBTComponent<C, B>, B extends NBTComponentBuilder<C, B>> extends BuildableComponent<C, B> {
+public sealed interface NBTComponent<C extends NBTComponent<C, B>, B extends NBTComponentBuilder<C, B>> extends BuildableComponent<C, B> permits BlockNBTComponent, EntityNBTComponent, NBTComponentImpl, StorageNBTComponent {
   /**
    * Gets the NBT path.
    *

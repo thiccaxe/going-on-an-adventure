@@ -21,24 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.text;
+@SuppressWarnings("JavaModuleNaming")
+module net.kyori.adventure.serializer.configurate4 {
+  requires net.kyori.adventure;
 
-import net.kyori.adventure.util.Buildable;
-import org.jetbrains.annotations.NotNull;
-
-/**
- * A component which may be built.
- *
- * @param <C> the component type
- * @param <B> the builder type
- * @since 4.0.0
- */
-public sealed interface BuildableComponent<C extends BuildableComponent<C, B>, B extends ComponentBuilder<C, B>> extends Buildable<C, B>, Component permits KeybindComponent, NBTComponent, ScoreComponent, SelectorComponent, TextComponent, TranslatableComponent {
-  /**
-   * Create a builder from this component.
-   *
-   * @return the builder
-   */
-  @Override
-  @NotNull B toBuilder();
+  exports net.kyori.adventure.serializer.configurate4;
 }

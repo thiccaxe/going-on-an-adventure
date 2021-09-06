@@ -52,7 +52,7 @@ import org.jetbrains.annotations.UnmodifiableView;
  * @since 4.0.0
  */
 @ApiStatus.NonExtendable
-public interface BossBar extends Examinable {
+public sealed interface BossBar extends Examinable permits BossBarImpl {
   /**
    * The minimum value the progress can be.
    *

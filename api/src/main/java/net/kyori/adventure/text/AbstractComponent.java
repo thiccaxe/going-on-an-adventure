@@ -44,7 +44,7 @@ import static java.util.Objects.requireNonNull;
  * @since 4.0.0
  */
 @Debug.Renderer(text = "this.debuggerString()", childrenArray = "this.children().toArray()", hasChildren = "!this.children().isEmpty()")
-public abstract class AbstractComponent implements Component {
+public abstract sealed class AbstractComponent implements Component permits KeybindComponentImpl, NBTComponentImpl, ScoreComponentImpl, SelectorComponentImpl, TextComponentImpl, TranslatableComponentImpl {
   private static final Predicate<Component> NOT_EMPTY = component -> component != Component.empty();
 
   protected final List<Component> children;

@@ -39,7 +39,7 @@ import org.jetbrains.annotations.UnknownNullability;
  * @since 4.0.0
  */
 @ApiStatus.NonExtendable
-public interface Title extends Examinable {
+public sealed interface Title extends Examinable permits TitleImpl {
   /**
    * The default times.
    *

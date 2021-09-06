@@ -40,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @since 4.0.0
  */
-public interface GlobalTranslator extends Translator, Examinable {
+public sealed interface GlobalTranslator extends Translator, Examinable permits GlobalTranslatorImpl {
   /**
    * Gets the global translation source.
    *

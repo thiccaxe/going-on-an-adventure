@@ -59,7 +59,7 @@ import org.jetbrains.annotations.Unmodifiable;
  * @since 4.0.0
  */
 @ApiStatus.NonExtendable
-public interface Style extends Buildable<Style, Style.Builder>, Examinable {
+public sealed interface Style extends Buildable<Style, Style.Builder>, Examinable permits StyleImpl {
   /**
    * The default font.
    *
