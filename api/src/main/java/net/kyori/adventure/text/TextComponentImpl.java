@@ -95,9 +95,8 @@ final class TextComponentImpl extends AbstractComponent implements TextComponent
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof TextComponentImpl)) return false;
+    if (!(other instanceof final TextComponentImpl that)) return false;
     if (!super.equals(other)) return false;
-    final TextComponentImpl that = (TextComponentImpl) other;
     return Objects.equals(this.content, that.content);
   }
 

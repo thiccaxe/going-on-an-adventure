@@ -196,8 +196,7 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
     }
     if (src instanceof TextComponent) {
       value.node(TEXT).set(((TextComponent) src).content());
-    } else if (src instanceof TranslatableComponent) {
-      final TranslatableComponent tc = (TranslatableComponent) src;
+    } else if (src instanceof final TranslatableComponent tc) {
       value.node(TRANSLATE).set(tc.key());
       if (!tc.args().isEmpty()) {
         final ConfigurationNode with = value.node(TRANSLATE_WITH);
@@ -205,8 +204,7 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
           with.appendListNode().set(Component.class, arg);
         }
       }
-    } else if (src instanceof ScoreComponent) {
-      final ScoreComponent sc = (ScoreComponent) src;
+    } else if (src instanceof final ScoreComponent sc) {
       final ConfigurationNode score = value.node(SCORE);
       score.node(SCORE_NAME).set(sc.name());
       score.node(SCORE_OBJECTIVE).set(sc.objective());
@@ -214,20 +212,19 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
       @SuppressWarnings("deprecation")
       final @Nullable String scoreValue = sc.value();
       if (scoreValue != null) score.node(SCORE_VALUE).set(scoreValue);
-    } else if (src instanceof SelectorComponent) {
-      value.node(SELECTOR).set(((SelectorComponent) src).pattern());
-    } else if (src instanceof KeybindComponent) {
-      value.node(KEYBIND).set(((KeybindComponent) src).keybind());
-    } else if (src instanceof NBTComponent) {
-      final NBTComponent<?, ?> nc = (NBTComponent<?, ?>) src;
+    } else if (src instanceof SelectorComponent sc) {
+      value.node(SELECTOR).set(sc.pattern());
+    } else if (src instanceof KeybindComponent kc) {
+      value.node(KEYBIND).set(kc.keybind());
+    } else if (src instanceof final NBTComponent<?, ?> nc) {
       value.node(NBT).set(nc.nbtPath());
       value.node(NBT_INTERPRET).set(nc.interpret());
-      if (src instanceof BlockNBTComponent) {
-        value.node(NBT_BLOCK).set(BlockNBTPosSerializer.INSTANCE.type(), ((BlockNBTComponent) nc).pos());
-      } else if (src instanceof EntityNBTComponent) {
-        value.node(NBT_ENTITY).set(((EntityNBTComponent) nc).selector());
-      } else if (src instanceof StorageNBTComponent) {
-        value.node(NBT_STORAGE).set(KeySerializer.INSTANCE.type(), ((StorageNBTComponent) nc).storage());
+      if (src instanceof BlockNBTComponent bnc) {
+        value.node(NBT_BLOCK).set(BlockNBTPosSerializer.INSTANCE.type(), bnc.pos());
+      } else if (src instanceof EntityNBTComponent enc) {
+        value.node(NBT_ENTITY).set(enc.selector());
+      } else if (src instanceof StorageNBTComponent snc) {
+        value.node(NBT_STORAGE).set(KeySerializer.INSTANCE.type(), snc.storage());
       } else {
         throw notSureHowToSerialize(src);
       }

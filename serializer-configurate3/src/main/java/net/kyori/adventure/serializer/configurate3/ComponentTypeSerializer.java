@@ -196,10 +196,9 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
         throw new ObjectMappingException(ex);
       }
     }
-    if (src instanceof TextComponent) {
-      value.getNode(TEXT).setValue(((TextComponent) src).content());
-    } else if (src instanceof TranslatableComponent) {
-      final TranslatableComponent tc = (TranslatableComponent) src;
+    if (src instanceof TextComponent tc) {
+      value.getNode(TEXT).setValue(tc.content());
+    } else if (src instanceof final TranslatableComponent tc) {
       value.getNode(TRANSLATE).setValue(tc.key());
       if (!tc.args().isEmpty()) {
         final ConfigurationNode with = value.getNode(TRANSLATE_WITH);
@@ -207,8 +206,7 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
           with.appendListNode().setValue(TYPE, arg);
         }
       }
-    } else if (src instanceof ScoreComponent) {
-      final ScoreComponent sc = (ScoreComponent) src;
+    } else if (src instanceof final ScoreComponent sc) {
       final ConfigurationNode score = value.getNode(SCORE);
       score.getNode(SCORE_NAME).setValue(sc.name());
       score.getNode(SCORE_OBJECTIVE).setValue(sc.objective());
@@ -216,20 +214,19 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
       @SuppressWarnings("deprecation")
       final @Nullable String scoreValue = sc.value();
       if (scoreValue != null) score.getNode(SCORE_VALUE).setValue(scoreValue);
-    } else if (src instanceof SelectorComponent) {
-      value.getNode(SELECTOR).setValue(((SelectorComponent) src).pattern());
-    } else if (src instanceof KeybindComponent) {
-      value.getNode(KEYBIND).setValue(((KeybindComponent) src).keybind());
-    } else if (src instanceof NBTComponent) {
-      final NBTComponent<?, ?> nc = (NBTComponent<?, ?>) src;
+    } else if (src instanceof SelectorComponent sc) {
+      value.getNode(SELECTOR).setValue(sc.pattern());
+    } else if (src instanceof KeybindComponent kc) {
+      value.getNode(KEYBIND).setValue(kc.keybind());
+    } else if (src instanceof final NBTComponent<?, ?> nc) {
       value.getNode(NBT).setValue(nc.nbtPath());
       value.getNode(NBT_INTERPRET).setValue(nc.interpret());
-      if (src instanceof BlockNBTComponent) {
-        value.getNode(NBT_BLOCK).setValue(BlockNBTPosSerializer.INSTANCE.type(), ((BlockNBTComponent) nc).pos());
-      } else if (src instanceof EntityNBTComponent) {
-        value.getNode(NBT_ENTITY).setValue(((EntityNBTComponent) nc).selector());
-      } else if (src instanceof StorageNBTComponent) {
-        value.getNode(NBT_STORAGE).setValue(KeySerializer.INSTANCE.type(), ((StorageNBTComponent) nc).storage());
+      if (src instanceof BlockNBTComponent bnc) {
+        value.getNode(NBT_BLOCK).setValue(BlockNBTPosSerializer.INSTANCE.type(), bnc.pos());
+      } else if (src instanceof EntityNBTComponent enc) {
+        value.getNode(NBT_ENTITY).setValue(enc.selector());
+      } else if (src instanceof StorageNBTComponent snc) {
+        value.getNode(NBT_STORAGE).setValue(KeySerializer.INSTANCE.type(), snc.storage());
       } else {
         throw notSureHowToSerialize(src);
       }

@@ -77,9 +77,8 @@ final class SelectorComponentImpl extends AbstractComponent implements SelectorC
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof SelectorComponent)) return false;
+    if (!(other instanceof final SelectorComponent that)) return false;
     if (!super.equals(other)) return false;
-    final SelectorComponent that = (SelectorComponent) other;
     return Objects.equals(this.pattern, that.pattern()) && Objects.equals(this.separator, that.separator());
   }
 

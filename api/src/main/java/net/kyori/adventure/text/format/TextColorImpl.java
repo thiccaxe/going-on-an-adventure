@@ -27,23 +27,11 @@ import org.jetbrains.annotations.Debug;
 import org.jetbrains.annotations.Nullable;
 
 @Debug.Renderer(text = "asHexString()")
-final class TextColorImpl implements TextColor {
-  private final int value;
-
-  TextColorImpl(final int value) {
-    this.value = value;
-  }
-
-  @Override
-  public int value() {
-    return this.value;
-  }
-
+record TextColorImpl(int value) implements TextColor {
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof TextColorImpl)) return false;
-    final TextColorImpl that = (TextColorImpl) other;
+    if (!(other instanceof final TextColorImpl that)) return false;
     return this.value == that.value;
   }
 

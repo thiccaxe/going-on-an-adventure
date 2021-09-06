@@ -95,9 +95,8 @@ final class ScoreComponentImpl extends AbstractComponent implements ScoreCompone
   @SuppressWarnings("deprecation")
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof ScoreComponent)) return false;
+    if (!(other instanceof final ScoreComponent that)) return false;
     if (!super.equals(other)) return false;
-    final ScoreComponent that = (ScoreComponent) other;
     return Objects.equals(this.name, that.name())
       && Objects.equals(this.objective, that.objective())
       && Objects.equals(this.value, that.value());

@@ -87,10 +87,7 @@ final class TranslationRegistryImpl implements Examinable, TranslationRegistry {
   @Override
   public boolean equals(final Object other) {
     if (this == other) return true;
-    if (!(other instanceof TranslationRegistryImpl)) return false;
-
-    final TranslationRegistryImpl that = (TranslationRegistryImpl) other;
-
+    if (!(other instanceof final TranslationRegistryImpl that)) return false;
     return this.name.equals(that.name)
       && this.translations.equals(that.translations)
       && this.defaultLocale.equals(that.defaultLocale);
@@ -146,8 +143,7 @@ final class TranslationRegistryImpl implements Examinable, TranslationRegistry {
     @Override
     public boolean equals(final Object other) {
       if (this == other) return true;
-      if (!(other instanceof Translation)) return false;
-      final Translation that = (Translation) other;
+      if (!(other instanceof final Translation that)) return false;
       return this.key.equals(that.key) &&
         this.formats.equals(that.formats);
     }

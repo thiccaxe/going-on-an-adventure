@@ -65,9 +65,8 @@ final class KeybindComponentImpl extends AbstractComponent implements KeybindCom
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof KeybindComponent)) return false;
+    if (!(other instanceof final KeybindComponent that)) return false;
     if (!super.equals(other)) return false;
-    final KeybindComponent that = (KeybindComponent) other;
     return Objects.equals(this.keybind, that.keybind());
   }
 

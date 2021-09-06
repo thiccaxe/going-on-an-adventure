@@ -27,37 +27,11 @@ import java.util.Objects;
 import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.Nullable;
 
-final class HSVLikeImpl implements HSVLike {
-  private final float h;
-  private final float s;
-  private final float v;
-
-  HSVLikeImpl(final float h, final float s, final float v) {
-    this.h = h;
-    this.s = s;
-    this.v = v;
-  }
-
-  @Override
-  public float h() {
-    return this.h;
-  }
-
-  @Override
-  public float s() {
-    return this.s;
-  }
-
-  @Override
-  public float v() {
-    return this.v;
-  }
-
+record HSVLikeImpl(float h, float s, float v) implements HSVLike {
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof HSVLikeImpl)) return false;
-    final HSVLikeImpl that = (HSVLikeImpl) other;
+    if (!(other instanceof final HSVLikeImpl that)) return false;
     return ShadyPines.equals(that.h, this.h) && ShadyPines.equals(that.s, this.s) && ShadyPines.equals(that.v, this.v);
   }
 

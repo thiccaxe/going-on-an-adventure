@@ -124,9 +124,7 @@ class ComponentIteratorTest {
     boolean foundEntity = false;
 
     for (final Component inner : component.iterable(ComponentIteratorType.BREADTH_FIRST, ComponentIteratorFlag.INCLUDE_HOVER_SHOW_TEXT_COMPONENT, ComponentIteratorFlag.INCLUDE_HOVER_SHOW_ENTITY_NAME)) {
-      if (inner instanceof TextComponent) {
-        final TextComponent text = (TextComponent) inner;
-
+      if (inner instanceof final TextComponent text) {
         if (text.content().equals("TEXT")) foundText = true;
         else if (text.content().equals("ENTITY")) foundEntity = true;
       }
@@ -144,9 +142,7 @@ class ComponentIteratorTest {
       .build();
 
     for (final Component inner : component.iterable(ComponentIteratorType.BREADTH_FIRST, ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS)) {
-      if (inner instanceof TextComponent) {
-        final TextComponent text = (TextComponent) inner;
-
+      if (inner instanceof final TextComponent text) {
         if (text.content().equals("ARG")) return;
       }
     }

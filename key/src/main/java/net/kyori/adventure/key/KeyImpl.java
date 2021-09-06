@@ -32,14 +32,12 @@ import org.jetbrains.annotations.VisibleForTesting;
 
 import static java.util.Objects.requireNonNull;
 
-final class KeyImpl implements Key {
+record KeyImpl(@NotNull String namespace, @NotNull String value) implements Key {
   static final String NAMESPACE_PATTERN = "[a-z0-9_\\-.]+";
   static final String VALUE_PATTERN = "[a-z0-9_\\-./]+";
 
   private static final IntPredicate NAMESPACE_PREDICATE = value -> value == '_' || value == '-' || (value >= 'a' && value <= 'z') || (value >= '0' && value <= '9') || value == '.';
   private static final IntPredicate VALUE_PREDICATE = value -> value == '_' || value == '-' || (value >= 'a' && value <= 'z') || (value >= '0' && value <= '9') || value == '/' || value == '.';
-  private final String namespace;
-  private final String value;
 
   KeyImpl(final @NotNull String namespace, final @NotNull String value) {
     if (!namespaceValid(namespace)) throw new InvalidKeyException(namespace, value, String.format("Non [a-z0-9_.-] character in namespace of Key[%s]", asString(namespace, value)));
@@ -69,16 +67,6 @@ final class KeyImpl implements Key {
   }
 
   @Override
-  public @NotNull String namespace() {
-    return this.namespace;
-  }
-
-  @Override
-  public @NotNull String value() {
-    return this.value;
-  }
-
-  @Override
   public @NotNull String asString() {
     return asString(this.namespace, this.value);
   }
@@ -103,8 +91,7 @@ final class KeyImpl implements Key {
   @Override
   public boolean equals(final Object other) {
     if (this == other) return true;
-    if (!(other instanceof Key)) return false;
-    final Key that = (Key) other;
+    if (!(other instanceof final Key that)) return false;
     return Objects.equals(this.namespace, that.namespace()) && Objects.equals(this.value, that.value());
   }
 

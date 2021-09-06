@@ -88,9 +88,8 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof BlockNBTComponent)) return false;
+    if (!(other instanceof final BlockNBTComponent that)) return false;
     if (!super.equals(other)) return false;
-    final BlockNBTComponent that = (BlockNBTComponent) other;
     return Objects.equals(this.pos, that.pos());
   }
 
@@ -179,8 +178,7 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
     @Override
     public boolean equals(final @Nullable Object other) {
       if (this == other) return true;
-      if (!(other instanceof LocalPos)) return false;
-      final LocalPos that = (LocalPos) other;
+      if (!(other instanceof final LocalPos that)) return false;
       return ShadyPines.equals(that.left(), this.left())
         && ShadyPines.equals(that.up(), this.up())
         && ShadyPines.equals(that.forwards(), this.forwards());
@@ -243,8 +241,7 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
     @Override
     public boolean equals(final @Nullable Object other) {
       if (this == other) return true;
-      if (!(other instanceof WorldPos)) return false;
-      final WorldPos that = (WorldPos) other;
+      if (!(other instanceof final WorldPos that)) return false;
       return this.x.equals(that.x())
         && this.y.equals(that.y())
         && this.z.equals(that.z());
@@ -298,8 +295,7 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
       @Override
       public boolean equals(final @Nullable Object other) {
         if (this == other) return true;
-        if (!(other instanceof Coordinate)) return false;
-        final Coordinate that = (Coordinate) other;
+        if (!(other instanceof final Coordinate that)) return false;
         return this.value() == that.value()
           && this.type() == that.type();
       }

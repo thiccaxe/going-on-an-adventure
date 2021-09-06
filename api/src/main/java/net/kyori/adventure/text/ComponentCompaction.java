@@ -53,9 +53,7 @@ final class ComponentCompaction {
     }
 
     // if there is only one child, check if self a useless empty component
-    if (childrenSize == 1 && self instanceof TextComponent) {
-      final TextComponent textComponent = (TextComponent) self;
-
+    if (childrenSize == 1 && self instanceof final TextComponent textComponent) {
       if (textComponent.content().isEmpty()) {
         final Component child = children.get(0);
 

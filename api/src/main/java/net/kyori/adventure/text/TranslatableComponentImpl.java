@@ -90,9 +90,8 @@ final class TranslatableComponentImpl extends AbstractComponent implements Trans
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof TranslatableComponent)) return false;
+    if (!(other instanceof final TranslatableComponent that)) return false;
     if (!super.equals(other)) return false;
-    final TranslatableComponent that = (TranslatableComponent) other;
     return Objects.equals(this.key, that.key()) && Objects.equals(this.args, that.args());
   }
 

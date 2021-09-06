@@ -52,8 +52,7 @@ abstract class SoundStopImpl implements SoundStop {
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof SoundStopImpl)) return false;
-    final SoundStopImpl that = (SoundStopImpl) other;
+    if (!(other instanceof final SoundStopImpl that)) return false;
     return Objects.equals(this.sound(), that.sound())
       && Objects.equals(this.source, that.source);
   }

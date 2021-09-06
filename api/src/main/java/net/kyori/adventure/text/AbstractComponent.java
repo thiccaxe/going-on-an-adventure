@@ -88,8 +88,7 @@ public abstract class AbstractComponent implements Component {
   @Override
   public boolean equals(final @Nullable Object other) {
     if (this == other) return true;
-    if (!(other instanceof AbstractComponent)) return false;
-    final AbstractComponent that = (AbstractComponent) other;
+    if (!(other instanceof final AbstractComponent that)) return false;
     return Objects.equals(this.children, that.children)
       && Objects.equals(this.style, that.style);
   }

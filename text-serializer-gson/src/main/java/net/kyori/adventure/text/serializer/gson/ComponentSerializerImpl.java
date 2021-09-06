@@ -254,19 +254,17 @@ final class ComponentSerializerImpl extends TypeAdapter<Component> {
       this.gson.toJson(value.children(), COMPONENT_LIST_TYPE, out);
     }
 
-    if (value instanceof TextComponent) {
+    if (value instanceof TextComponent tc) {
       out.name(TEXT);
-      out.value(((TextComponent) value).content());
-    } else if (value instanceof TranslatableComponent) {
-      final TranslatableComponent translatable = (TranslatableComponent) value;
+      out.value(tc.content());
+    } else if (value instanceof final TranslatableComponent translatable) {
       out.name(TRANSLATE);
       out.value(translatable.key());
       if (!translatable.args().isEmpty()) {
         out.name(TRANSLATE_WITH);
         this.gson.toJson(translatable.args(), COMPONENT_LIST_TYPE, out);
       }
-    } else if (value instanceof ScoreComponent) {
-      final ScoreComponent score = (ScoreComponent) value;
+    } else if (value instanceof final ScoreComponent score) {
       out.name(SCORE);
       out.beginObject();
       out.name(SCORE_NAME);
@@ -278,30 +276,28 @@ final class ComponentSerializerImpl extends TypeAdapter<Component> {
         out.value(score.value());
       }
       out.endObject();
-    } else if (value instanceof SelectorComponent) {
-      final SelectorComponent selector = (SelectorComponent) value;
+    } else if (value instanceof final SelectorComponent selector) {
       out.name(SELECTOR);
       out.value(selector.pattern());
       this.serializeSeparator(out, selector.separator());
-    } else if (value instanceof KeybindComponent) {
+    } else if (value instanceof KeybindComponent keybind) {
       out.name(KEYBIND);
-      out.value(((KeybindComponent) value).keybind());
-    } else if (value instanceof NBTComponent) {
-      final NBTComponent<?, ?> nbt = (NBTComponent<?, ?>) value;
+      out.value(keybind.keybind());
+    } else if (value instanceof final NBTComponent<?, ?> nbt) {
       out.name(NBT);
       out.value(nbt.nbtPath());
       out.name(NBT_INTERPRET);
       out.value(nbt.interpret());
       this.serializeSeparator(out, nbt.separator());
-      if (value instanceof BlockNBTComponent) {
+      if (value instanceof BlockNBTComponent blockNBT) {
         out.name(NBT_BLOCK);
-        this.gson.toJson(((BlockNBTComponent) value).pos(), SerializerFactory.BLOCK_NBT_POS_TYPE, out);
-      } else if (value instanceof EntityNBTComponent) {
+        this.gson.toJson(blockNBT.pos(), SerializerFactory.BLOCK_NBT_POS_TYPE, out);
+      } else if (value instanceof EntityNBTComponent entityNBT) {
         out.name(NBT_ENTITY);
-        out.value(((EntityNBTComponent) value).selector());
-      } else if (value instanceof StorageNBTComponent) {
+        out.value(entityNBT.selector());
+      } else if (value instanceof StorageNBTComponent storageNBT) {
         out.name(NBT_STORAGE);
-        this.gson.toJson(((StorageNBTComponent) value).storage(), SerializerFactory.KEY_TYPE, out);
+        this.gson.toJson(storageNBT.storage(), SerializerFactory.KEY_TYPE, out);
       } else {
         throw notSureHowToSerialize(value);
       }

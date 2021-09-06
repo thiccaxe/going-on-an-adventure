@@ -47,8 +47,7 @@ public interface ComponentIteratorType {
    * @since 4.9.0
    */
   ComponentIteratorType DEPTH_FIRST = (component, deque, flags) -> {
-    if (flags.contains(ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS) && component instanceof TranslatableComponent) {
-      final TranslatableComponent translatable = (TranslatableComponent) component;
+    if (flags.contains(ComponentIteratorFlag.INCLUDE_TRANSLATABLE_COMPONENT_ARGUMENTS) && component instanceof final TranslatableComponent translatable) {
       final List<Component> args = translatable.args();
 
       for (int i = args.size() - 1; i >= 0; i--) {
