@@ -52,6 +52,17 @@ public interface ComponentLike {
   /**
    * Converts a list of {@link ComponentLike}s to a list of {@link Component}s.
    *
+   * @param likes the component-likes
+   * @return the components
+   * @since 4.8.0
+   */
+  static @NotNull List<Component> asComponents(final @NotNull ComponentLike@NotNull... likes) {
+    return asComponents(List.of(likes), null);
+  }
+
+  /**
+   * Converts a list of {@link ComponentLike}s to a list of {@link Component}s.
+   *
    * <p>Only components that match {@code filter} will be returned.</p>
    *
    * @param likes the component-likes
@@ -64,7 +75,7 @@ public interface ComponentLike {
     if (size == 0) {
       // We do not need to create a new list if the one we are copying is empty - we can
       // simply just return our known-empty list instead.
-      return Collections.emptyList();
+      return List.of();
     }
     @Nullable ArrayList<Component> components = null;
     for (int i = 0; i < size; i++) {
@@ -82,7 +93,7 @@ public interface ComponentLike {
     // https://github.com/KyoriPowered/adventure/pull/327#discussion_r631420264
     // we pre-size the list, but filtering might make the actual size much smaller
     components.trimToSize();
-    return Collections.unmodifiableList(components);
+    return List.copyOf(components);
   }
 
   /**

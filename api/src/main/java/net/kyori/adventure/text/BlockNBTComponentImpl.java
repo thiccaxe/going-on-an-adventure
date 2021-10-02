@@ -30,19 +30,20 @@ import java.util.stream.Stream;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.util.ShadyPines;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, BlockNBTComponent.Builder> implements BlockNBTComponent {
-  private final Pos pos;
-
-  BlockNBTComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final String nbtPath, final boolean interpret, final @Nullable ComponentLike separator, final @NotNull Pos pos) {
-    super(children, style, nbtPath, interpret, separator);
-    this.pos = pos;
-  }
-
+final record BlockNBTComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String nbtPath,
+  boolean interpret,
+  @Nullable Component separator,
+  @NotNull Pos pos
+) implements BlockNBTComponent {
   @Override
   public @NotNull BlockNBTComponent nbtPath(final @NotNull String nbtPath) {
     if (Objects.equals(this.nbtPath, nbtPath)) return this;
@@ -62,7 +63,7 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
 
   @Override
   public @NotNull BlockNBTComponent separator(final @Nullable ComponentLike separator) {
-    return new BlockNBTComponentImpl(this.children, this.style, this.nbtPath, this.interpret, separator, this.pos);
+    return new BlockNBTComponentImpl(this.children, this.style, this.nbtPath, this.interpret, ComponentLike.unbox(separator), this.pos);
   }
 
   @Override
@@ -77,7 +78,7 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
 
   @Override
   public @NotNull BlockNBTComponent children(final @NotNull List<? extends ComponentLike> children) {
-    return new BlockNBTComponentImpl(children, this.style, this.nbtPath, this.interpret, this.separator, this.pos);
+    return new BlockNBTComponentImpl(ComponentLike.asComponents(children, NOT_EMPTY), this.style, this.nbtPath, this.interpret, this.separator, this.pos);
   }
 
   @Override
@@ -86,29 +87,18 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
   }
 
   @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof BlockNBTComponent)) return false;
-    if (!super.equals(other)) return false;
-    final BlockNBTComponent that = (BlockNBTComponent) other;
-    return Objects.equals(this.pos, that.pos());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.pos.hashCode();
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("pos", this.pos)
       ),
-      super.examinablePropertiesWithoutChildren()
+      BlockNBTComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override
@@ -116,7 +106,7 @@ final class BlockNBTComponentImpl extends NBTComponentImpl<BlockNBTComponent, Bl
     return new BuilderImpl(this);
   }
 
-  static final class BuilderImpl extends NBTComponentImpl.BuilderImpl<BlockNBTComponent, BlockNBTComponent.Builder> implements BlockNBTComponent.Builder {
+  static final class BuilderImpl extends AbstractNBTComponentBuilder<BlockNBTComponent, Builder> implements BlockNBTComponent.Builder {
     private @Nullable Pos pos;
 
     BuilderImpl() {

@@ -21,25 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.text.format;
+package net.kyori.adventure.text;
 
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.StyleImpl.BuilderImpl;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-interface Merger {
-  void mergeColor(final BuilderImpl target, final @Nullable TextColor color);
-
-  void mergeDecoration(final BuilderImpl target, final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state);
-
-  void mergeClickEvent(final BuilderImpl target, final @Nullable ClickEvent event);
-
-  void mergeHoverEvent(final BuilderImpl target, final @Nullable HoverEvent<?> event);
-
-  void mergeInsertion(final BuilderImpl target, final @Nullable String insertion);
-
-  void mergeFont(final BuilderImpl target, final @Nullable Key font);
+interface ComponentImplementation {
+  boolean NBT_INTERPRET_DEFAULT = false;
 }

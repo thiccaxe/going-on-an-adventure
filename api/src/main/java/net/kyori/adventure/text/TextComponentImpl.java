@@ -23,20 +23,24 @@
  */
 package net.kyori.adventure.text;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.util.Nag;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import static java.util.Objects.requireNonNull;
 
-final class TextComponentImpl extends AbstractComponent implements TextComponent {
+final record TextComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String content
+) implements TextComponent {
   private static final boolean WARN_WHEN_LEGACY_FORMATTING_DETECTED = Boolean.getBoolean(String.join(".", "net", "kyori", "adventure", "text", "warnWhenLegacyFormattingDetected"));
   @VisibleForTesting
   static final char SECTION_CHAR = '§';
@@ -46,15 +50,10 @@ final class TextComponentImpl extends AbstractComponent implements TextComponent
   static final TextComponent SPACE = createDirect(" ");
 
   private static @NotNull TextComponent createDirect(final @NotNull String content) {
-    return new TextComponentImpl(Collections.emptyList(), Style.empty(), content);
+    return new TextComponentImpl(List.of(), Style.empty(), content);
   }
 
-  private final String content;
-
-  TextComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final @NotNull String content) {
-    super(children, style);
-    this.content = requireNonNull(content, "content");
-
+  TextComponentImpl {
     if (WARN_WHEN_LEGACY_FORMATTING_DETECTED) {
       final LegacyFormattingDetected nag = this.warnWhenLegacyFormattingDetected();
       if (nag != null) {
@@ -84,7 +83,7 @@ final class TextComponentImpl extends AbstractComponent implements TextComponent
 
   @Override
   public @NotNull TextComponent children(final @NotNull List<? extends ComponentLike> children) {
-    return new TextComponentImpl(children, this.style, this.content);
+    return new TextComponentImpl(ComponentLike.asComponents(children, NOT_EMPTY), this.style, this.content);
   }
 
   @Override
@@ -93,29 +92,18 @@ final class TextComponentImpl extends AbstractComponent implements TextComponent
   }
 
   @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof TextComponentImpl)) return false;
-    if (!super.equals(other)) return false;
-    final TextComponentImpl that = (TextComponentImpl) other;
-    return Objects.equals(this.content, that.content);
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.content.hashCode();
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("content", this.content)
       ),
-      super.examinablePropertiesWithoutChildren()
+      TextComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override
@@ -155,7 +143,7 @@ final class TextComponentImpl extends AbstractComponent implements TextComponent
       if (this.isEmpty()) {
         return Component.empty();
       }
-      return new TextComponentImpl(this.children, this.buildStyle(), this.content);
+      return new TextComponentImpl(List.copyOf(this.children), this.buildStyle(), this.content);
     }
 
     private boolean isEmpty() {

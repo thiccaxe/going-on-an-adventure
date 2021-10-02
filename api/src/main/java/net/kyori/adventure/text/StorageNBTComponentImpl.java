@@ -29,17 +29,18 @@ import java.util.stream.Stream;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class StorageNBTComponentImpl extends NBTComponentImpl<StorageNBTComponent, StorageNBTComponent.Builder> implements StorageNBTComponent {
-  private final Key storage;
-
-  StorageNBTComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final String nbtPath, final boolean interpret, final @Nullable ComponentLike separator, final Key storage) {
-    super(children, style, nbtPath, interpret, separator);
-    this.storage = storage;
-  }
-
+final record StorageNBTComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String nbtPath,
+  boolean interpret,
+  @Nullable Component separator,
+  @NotNull Key storage
+) implements StorageNBTComponent {
   @Override
   public @NotNull StorageNBTComponent nbtPath(final @NotNull String nbtPath) {
     if (Objects.equals(this.nbtPath, nbtPath)) return this;
@@ -53,18 +54,8 @@ final class StorageNBTComponentImpl extends NBTComponentImpl<StorageNBTComponent
   }
 
   @Override
-  public @Nullable Component separator() {
-    return this.separator;
-  }
-
-  @Override
   public @NotNull StorageNBTComponent separator(final @Nullable ComponentLike separator) {
-    return new StorageNBTComponentImpl(this.children, this.style, this.nbtPath, this.interpret, separator, this.storage);
-  }
-
-  @Override
-  public @NotNull Key storage() {
-    return this.storage;
+    return new StorageNBTComponentImpl(this.children, this.style, this.nbtPath, this.interpret, ComponentLike.unbox(separator), this.storage);
   }
 
   @Override
@@ -75,7 +66,7 @@ final class StorageNBTComponentImpl extends NBTComponentImpl<StorageNBTComponent
 
   @Override
   public @NotNull StorageNBTComponent children(final @NotNull List<? extends ComponentLike> children) {
-    return new StorageNBTComponentImpl(children, this.style, this.nbtPath, this.interpret, this.separator, this.storage);
+    return new StorageNBTComponentImpl(ComponentLike.asComponents(children, NOT_EMPTY), this.style, this.nbtPath, this.interpret, this.separator, this.storage);
   }
 
   @Override
@@ -84,29 +75,18 @@ final class StorageNBTComponentImpl extends NBTComponentImpl<StorageNBTComponent
   }
 
   @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof StorageNBTComponent)) return false;
-    if (!super.equals(other)) return false;
-    final StorageNBTComponentImpl that = (StorageNBTComponentImpl) other;
-    return Objects.equals(this.storage, that.storage());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.storage.hashCode();
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("storage", this.storage)
       ),
-      super.examinablePropertiesWithoutChildren()
+      StorageNBTComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override
@@ -114,7 +94,7 @@ final class StorageNBTComponentImpl extends NBTComponentImpl<StorageNBTComponent
     return new BuilderImpl(this);
   }
 
-  static class BuilderImpl extends NBTComponentImpl.BuilderImpl<StorageNBTComponent, StorageNBTComponent.Builder> implements StorageNBTComponent.Builder {
+  static class BuilderImpl extends AbstractNBTComponentBuilder<StorageNBTComponent, Builder> implements StorageNBTComponent.Builder {
     private @Nullable Key storage;
 
     BuilderImpl() {

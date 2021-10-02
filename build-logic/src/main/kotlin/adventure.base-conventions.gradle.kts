@@ -4,7 +4,7 @@ plugins {
 
 indra {
   javaVersions {
-    testWith(8, 11, 16)
+    target(16)
   }
 
   github("KyoriPowered", "adventure") {

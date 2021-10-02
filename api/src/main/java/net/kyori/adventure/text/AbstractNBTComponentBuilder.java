@@ -21,47 +21,43 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.text.format;
+package net.kyori.adventure.text;
 
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.event.HoverEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class AlwaysMerger implements Merger {
-  static final AlwaysMerger INSTANCE = new AlwaysMerger();
+abstract class AbstractNBTComponentBuilder<C extends NBTComponent<C, B>, B extends NBTComponentBuilder<C, B>> extends AbstractComponentBuilder<C, B> implements NBTComponentBuilder<C, B> {
+  protected @Nullable String nbtPath;
+  protected boolean interpret = ComponentImplementation.NBT_INTERPRET_DEFAULT;
+  protected @Nullable Component separator;
 
-  private AlwaysMerger() {
+  AbstractNBTComponentBuilder() {
+  }
+
+  AbstractNBTComponentBuilder(final @NotNull C component) {
+    super(component);
+    this.nbtPath = component.nbtPath();
+    this.interpret = component.interpret();
   }
 
   @Override
-  public void mergeColor(final StyleImpl.BuilderImpl target, final @Nullable TextColor color) {
-    target.color(color);
+  @SuppressWarnings("unchecked")
+  public @NotNull B nbtPath(final @NotNull String nbtPath) {
+    this.nbtPath = nbtPath;
+    return (B) this;
   }
 
   @Override
-  public void mergeDecoration(final StyleImpl.BuilderImpl target, final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state) {
-    target.decoration(decoration, state);
+  @SuppressWarnings("unchecked")
+  public @NotNull B interpret(final boolean interpret) {
+    this.interpret = interpret;
+    return (B) this;
   }
 
   @Override
-  public void mergeClickEvent(final StyleImpl.BuilderImpl target, final @Nullable ClickEvent event) {
-    target.clickEvent(event);
-  }
-
-  @Override
-  public void mergeHoverEvent(final StyleImpl.BuilderImpl target, final @Nullable HoverEvent<?> event) {
-    target.hoverEvent(event);
-  }
-
-  @Override
-  public void mergeInsertion(final StyleImpl.BuilderImpl target, final @Nullable String insertion) {
-    target.insertion(insertion);
-  }
-
-  @Override
-  public void mergeFont(final StyleImpl.BuilderImpl target, final @Nullable Key font) {
-    target.font(font);
+  @SuppressWarnings("unchecked")
+  public @NotNull B separator(final @Nullable ComponentLike separator) {
+    this.separator = ComponentLike.unbox(separator);
+    return (B) this;
   }
 }

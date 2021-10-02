@@ -31,29 +31,23 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-final class TranslatableComponentImpl extends AbstractComponent implements TranslatableComponent {
-  private final String key;
-  private final List<Component> args;
-
-  TranslatableComponentImpl(final @NotNull List<Component> children, final @NotNull Style style, final @NotNull String key, final @NotNull ComponentLike@NotNull[] args) {
-    this(children, style, key, Arrays.asList(args));
-  }
-
-  TranslatableComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final @NotNull String key, final @NotNull List<? extends ComponentLike> args) {
-    super(children, style);
-    this.key = requireNonNull(key, "key");
-    // Since translation arguments can be indexed, empty components are also included.
-    this.args = ComponentLike.asComponents(args);
-  }
-
-  @Override
-  public @NotNull String key() {
-    return this.key;
+final record TranslatableComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String key,
+  @NotNull List<Component> args
+) implements TranslatableComponent {
+  TranslatableComponentImpl(final @NotNull List<Component> children, final @NotNull Style style, final @NotNull String key, final @NotNull List<Component> args) {
+    this.children = List.copyOf(children);
+    this.style = style;
+    this.key = key;
+    this.args = List.copyOf(args);
   }
 
   @Override
@@ -63,23 +57,18 @@ final class TranslatableComponentImpl extends AbstractComponent implements Trans
   }
 
   @Override
-  public @NotNull List<Component> args() {
-    return this.args;
-  }
-
-  @Override
   public @NotNull TranslatableComponent args(final @NotNull ComponentLike@NotNull... args) {
-    return new TranslatableComponentImpl(this.children, this.style, this.key, args);
+    return new TranslatableComponentImpl(this.children, this.style, this.key, ComponentLike.asComponents(args));
   }
 
   @Override
   public @NotNull TranslatableComponent args(final @NotNull List<? extends ComponentLike> args) {
-    return new TranslatableComponentImpl(this.children, this.style, this.key, args);
+    return new TranslatableComponentImpl(this.children, this.style, this.key, ComponentLike.asComponents(args));
   }
 
   @Override
   public @NotNull TranslatableComponent children(final @NotNull List<? extends ComponentLike> children) {
-    return new TranslatableComponentImpl(children, this.style, this.key, this.args);
+    return new TranslatableComponentImpl(ComponentLike.asComponents(children, NOT_EMPTY), this.style, this.key, this.args);
   }
 
   @Override
@@ -88,31 +77,19 @@ final class TranslatableComponentImpl extends AbstractComponent implements Trans
   }
 
   @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof TranslatableComponent)) return false;
-    if (!super.equals(other)) return false;
-    final TranslatableComponent that = (TranslatableComponent) other;
-    return Objects.equals(this.key, that.key()) && Objects.equals(this.args, that.args());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.key.hashCode();
-    result = (31 * result) + this.args.hashCode();
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("key", this.key),
         ExaminableProperty.of("args", this.args)
       ),
-      super.examinablePropertiesWithoutChildren()
+      TranslatableComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override
@@ -122,7 +99,7 @@ final class TranslatableComponentImpl extends AbstractComponent implements Trans
 
   static final class BuilderImpl extends AbstractComponentBuilder<TranslatableComponent, Builder> implements TranslatableComponent.Builder {
     private @Nullable String key;
-    private List<? extends Component> args = Collections.emptyList();
+    private List<Component> args = Collections.emptyList();
 
     BuilderImpl() {
     }

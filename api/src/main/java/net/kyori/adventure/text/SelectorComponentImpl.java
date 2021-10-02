@@ -28,35 +28,33 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-final class SelectorComponentImpl extends AbstractComponent implements SelectorComponent {
-  private final String pattern;
-  private final @Nullable Component separator;
-
-  SelectorComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final @NotNull String pattern, final @Nullable ComponentLike separator) {
-    super(children, style);
+final record SelectorComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String pattern,
+  @Nullable Component separator
+) implements SelectorComponent {
+  SelectorComponentImpl(final @NotNull List<Component> children, final @NotNull Style style, final @NotNull String pattern, final @Nullable Component separator) {
+    this.children = ComponentLike.asComponents(children, NOT_EMPTY);
+    this.style = style;
     this.pattern = pattern;
-    this.separator = ComponentLike.unbox(separator);
+    this.separator = separator;
   }
 
-  @Override
-  public @NotNull String pattern() {
-    return this.pattern;
+  SelectorComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final @NotNull String pattern, final @Nullable ComponentLike separator) {
+    this(ComponentLike.asComponents(children, NOT_EMPTY), style, pattern, ComponentLike.unbox(separator));
   }
 
   @Override
   public @NotNull SelectorComponent pattern(final @NotNull String pattern) {
     if (Objects.equals(this.pattern, pattern)) return this;
     return new SelectorComponentImpl(this.children, this.style, requireNonNull(pattern, "pattern"), this.separator);
-  }
-
-  @Override
-  public @Nullable Component separator() {
-    return this.separator;
   }
 
   @Override
@@ -75,31 +73,19 @@ final class SelectorComponentImpl extends AbstractComponent implements SelectorC
   }
 
   @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof SelectorComponent)) return false;
-    if (!super.equals(other)) return false;
-    final SelectorComponent that = (SelectorComponent) other;
-    return Objects.equals(this.pattern, that.pattern()) && Objects.equals(this.separator, that.separator());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.pattern.hashCode();
-    result = (31 * result) + Objects.hashCode(this.separator);
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("pattern", this.pattern),
         ExaminableProperty.of("separator", this.separator)
       ),
-      super.examinablePropertiesWithoutChildren()
+      SelectorComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override

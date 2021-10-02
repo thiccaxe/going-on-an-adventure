@@ -28,17 +28,18 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class EntityNBTComponentImpl extends NBTComponentImpl<EntityNBTComponent, EntityNBTComponent.Builder> implements EntityNBTComponent {
-  private final String selector;
-
-  EntityNBTComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final String nbtPath, final boolean interpret, final @Nullable ComponentLike separator, final String selector) {
-    super(children, style, nbtPath, interpret, separator);
-    this.selector = selector;
-  }
-
+final record EntityNBTComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String nbtPath,
+  boolean interpret,
+  @Nullable Component separator,
+  @NotNull String selector
+) implements EntityNBTComponent {
   @Override
   public @NotNull EntityNBTComponent nbtPath(final @NotNull String nbtPath) {
     if (Objects.equals(this.nbtPath, nbtPath)) return this;
@@ -52,18 +53,8 @@ final class EntityNBTComponentImpl extends NBTComponentImpl<EntityNBTComponent, 
   }
 
   @Override
-  public @Nullable Component separator() {
-    return this.separator;
-  }
-
-  @Override
   public @NotNull EntityNBTComponent separator(final @Nullable ComponentLike separator) {
-    return new EntityNBTComponentImpl(this.children, this.style, this.nbtPath, this.interpret, separator, this.selector);
-  }
-
-  @Override
-  public @NotNull String selector() {
-    return this.selector;
+    return new EntityNBTComponentImpl(this.children, this.style, this.nbtPath, this.interpret, ComponentLike.unbox(separator), this.selector);
   }
 
   @Override
@@ -74,7 +65,7 @@ final class EntityNBTComponentImpl extends NBTComponentImpl<EntityNBTComponent, 
 
   @Override
   public @NotNull EntityNBTComponent children(final @NotNull List<? extends ComponentLike> children) {
-    return new EntityNBTComponentImpl(children, this.style, this.nbtPath, this.interpret, this.separator, this.selector);
+    return new EntityNBTComponentImpl(ComponentLike.asComponents(children, NOT_EMPTY), this.style, this.nbtPath, this.interpret, this.separator, this.selector);
   }
 
   @Override
@@ -83,29 +74,18 @@ final class EntityNBTComponentImpl extends NBTComponentImpl<EntityNBTComponent, 
   }
 
   @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof EntityNBTComponent)) return false;
-    if (!super.equals(other)) return false;
-    final EntityNBTComponentImpl that = (EntityNBTComponentImpl) other;
-    return Objects.equals(this.selector, that.selector());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.selector.hashCode();
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("selector", this.selector)
       ),
-      super.examinablePropertiesWithoutChildren()
+      EntityNBTComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override
@@ -113,7 +93,7 @@ final class EntityNBTComponentImpl extends NBTComponentImpl<EntityNBTComponent, 
     return new BuilderImpl(this);
   }
 
-  static final class BuilderImpl extends NBTComponentImpl.BuilderImpl<EntityNBTComponent, EntityNBTComponent.Builder> implements EntityNBTComponent.Builder {
+  static final class BuilderImpl extends AbstractNBTComponentBuilder<EntityNBTComponent, Builder> implements EntityNBTComponent.Builder {
     private @Nullable String selector;
 
     BuilderImpl() {

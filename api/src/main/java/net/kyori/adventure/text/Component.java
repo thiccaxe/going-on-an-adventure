@@ -35,9 +35,11 @@ import java.util.Spliterators;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -52,6 +54,7 @@ import net.kyori.adventure.util.ForwardingIterator;
 import net.kyori.adventure.util.IntFunction2;
 import net.kyori.adventure.util.MonkeyBars;
 import net.kyori.examination.Examinable;
+import net.kyori.examination.ExaminableProperty;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -114,6 +117,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    * @since 4.8.0
    */
   BiPredicate<? super Component, ? super Component> EQUALS_IDENTITY = (a, b) -> a == b;
+  Predicate<? super Component> NOT_EMPTY = component -> component != Component.empty();
 
   /**
    * Gets an empty component.
@@ -289,7 +293,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _ -> new", pure = true)
   static @NotNull BlockNBTComponent blockNBT(final @NotNull String nbtPath, final BlockNBTComponent.@NotNull Pos pos) {
-    return blockNBT(nbtPath, NBTComponentImpl.INTERPRET_DEFAULT, pos);
+    return blockNBT(nbtPath, ComponentImplementation.NBT_INTERPRET_DEFAULT, pos);
   }
 
   /**
@@ -318,7 +322,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _, _, _ -> new", pure = true)
   static @NotNull BlockNBTComponent blockNBT(final @NotNull String nbtPath, final boolean interpret, final @Nullable ComponentLike separator, final BlockNBTComponent.@NotNull Pos pos) {
-    return new BlockNBTComponentImpl(Collections.emptyList(), Style.empty(), nbtPath, interpret, separator, pos);
+    return new BlockNBTComponentImpl(Collections.emptyList(), Style.empty(), nbtPath, interpret, ComponentLike.unbox(separator), pos);
   }
 
   /*
@@ -675,7 +679,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _ -> new", pure = true)
   static @NotNull StorageNBTComponent storageNBT(final @NotNull String nbtPath, final @NotNull Key storage) {
-    return storageNBT(nbtPath, NBTComponentImpl.INTERPRET_DEFAULT, storage);
+    return storageNBT(nbtPath, ComponentImplementation.NBT_INTERPRET_DEFAULT, storage);
   }
 
   /**
@@ -704,7 +708,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _, _, _ -> new", pure = true)
   static @NotNull StorageNBTComponent storageNBT(final @NotNull String nbtPath, final boolean interpret, final @Nullable ComponentLike separator, final @NotNull Key storage) {
-    return new StorageNBTComponentImpl(Collections.emptyList(), Style.empty(), nbtPath, interpret, separator, storage);
+    return new StorageNBTComponentImpl(Collections.emptyList(), Style.empty(), nbtPath, interpret, ComponentLike.unbox(separator), storage);
   }
 
   /*
@@ -759,7 +763,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _ -> new", pure = true)
   static @NotNull TextComponent text(final @NotNull String content, final @NotNull Style style) {
-    return new TextComponentImpl(Collections.emptyList(), style, content);
+    return new TextComponentImpl(List.of(), style, content);
   }
 
   /**
@@ -1399,7 +1403,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _, _ -> new", pure = true)
   static @NotNull TranslatableComponent translatable(final @NotNull String key, final @NotNull Style style, final @NotNull ComponentLike@NotNull... args) {
-    return new TranslatableComponentImpl(Collections.emptyList(), style, key, args);
+    return new TranslatableComponentImpl(Collections.emptyList(), style, key, ComponentLike.asComponents(args));
   }
 
   /**
@@ -1484,7 +1488,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _ -> new", pure = true)
   static @NotNull TranslatableComponent translatable(final @NotNull String key, final @NotNull List<? extends ComponentLike> args) {
-    return new TranslatableComponentImpl(Collections.emptyList(), Style.empty(), key, args);
+    return new TranslatableComponentImpl(Collections.emptyList(), Style.empty(), key, ComponentLike.asComponents(args));
   }
 
   /**
@@ -1511,7 +1515,7 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
    */
   @Contract(value = "_, _, _ -> new", pure = true)
   static @NotNull TranslatableComponent translatable(final @NotNull String key, final @NotNull Style style, final @NotNull List<? extends ComponentLike> args) {
-    return new TranslatableComponentImpl(Collections.emptyList(), style, key, args);
+    return new TranslatableComponentImpl(Collections.emptyList(), style, key, ComponentLike.asComponents(args));
   }
 
   /**
@@ -2275,5 +2279,13 @@ public interface Component extends ComponentBuilderApplicable, ComponentLike, Ex
   @Override
   default @NotNull HoverEvent<Component> asHoverEvent(final @NotNull UnaryOperator<Component> op) {
     return HoverEvent.showText(op.apply(this));
+  }
+
+  @Override
+  default @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
+    return Stream.of(
+      ExaminableProperty.of("style", this.style()),
+      ExaminableProperty.of("children", this.children())
+    );
   }
 }

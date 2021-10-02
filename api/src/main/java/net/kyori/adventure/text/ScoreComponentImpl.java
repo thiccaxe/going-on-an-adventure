@@ -28,29 +28,19 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-final class ScoreComponentImpl extends AbstractComponent implements ScoreComponent {
-  private final String name;
-  private final String objective;
-  @Deprecated
-  private final @Nullable String value;
-
-  ScoreComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final @NotNull String name, final @NotNull String objective, final @Nullable String value) {
-    super(children, style);
-    this.name = name;
-    this.objective = objective;
-    this.value = value;
-  }
-
-  @Override
-  public @NotNull String name() {
-    return this.name;
-  }
-
+final record ScoreComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String name,
+  @NotNull String objective,
+  @Deprecated @Nullable String value
+) implements ScoreComponent {
   @Override
   public @NotNull ScoreComponent name(final @NotNull String name) {
     if (Objects.equals(this.name, name)) return this;
@@ -58,20 +48,9 @@ final class ScoreComponentImpl extends AbstractComponent implements ScoreCompone
   }
 
   @Override
-  public @NotNull String objective() {
-    return this.objective;
-  }
-
-  @Override
   public @NotNull ScoreComponent objective(final @NotNull String objective) {
     if (Objects.equals(this.objective, objective)) return this;
     return new ScoreComponentImpl(this.children, this.style, this.name, requireNonNull(objective, "objective"), this.value);
-  }
-
-  @Override
-  @Deprecated
-  public @Nullable String value() {
-    return this.value;
   }
 
   @Override
@@ -83,7 +62,7 @@ final class ScoreComponentImpl extends AbstractComponent implements ScoreCompone
 
   @Override
   public @NotNull ScoreComponent children(final @NotNull List<? extends ComponentLike> children) {
-    return new ScoreComponentImpl(children, this.style, this.name, this.objective, this.value);
+    return new ScoreComponentImpl(ComponentLike.asComponents(children, NOT_EMPTY), this.style, this.name, this.objective, this.value);
   }
 
   @Override
@@ -92,36 +71,20 @@ final class ScoreComponentImpl extends AbstractComponent implements ScoreCompone
   }
 
   @Override
-  @SuppressWarnings("deprecation")
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof ScoreComponent)) return false;
-    if (!super.equals(other)) return false;
-    final ScoreComponent that = (ScoreComponent) other;
-    return Objects.equals(this.name, that.name())
-      && Objects.equals(this.objective, that.objective())
-      && Objects.equals(this.value, that.value());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.name.hashCode();
-    result = (31 * result) + this.objective.hashCode();
-    result = (31 * result) + Objects.hashCode(this.value);
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("name", this.name),
         ExaminableProperty.of("objective", this.objective),
         ExaminableProperty.of("value", this.value)
       ),
-      super.examinablePropertiesWithoutChildren()
+      ScoreComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override

@@ -28,22 +28,21 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.examination.ExaminableProperty;
+import net.kyori.examination.string.StringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
-final class KeybindComponentImpl extends AbstractComponent implements KeybindComponent {
-  private final String keybind;
-
-  KeybindComponentImpl(final @NotNull List<? extends ComponentLike> children, final @NotNull Style style, final @NotNull String keybind) {
-    super(children, style);
-    this.keybind = requireNonNull(keybind, "keybind");
-  }
-
-  @Override
-  public @NotNull String keybind() {
-    return this.keybind;
+final record KeybindComponentImpl(
+  @NotNull List<Component> children,
+  @NotNull Style style,
+  @NotNull String keybind
+) implements KeybindComponent {
+  KeybindComponentImpl(final @NotNull List<Component> children, final @NotNull Style style, final @NotNull String keybind) {
+    this.children = List.copyOf(children);
+    this.style = style;
+    this.keybind = keybind;
   }
 
   @Override
@@ -54,7 +53,7 @@ final class KeybindComponentImpl extends AbstractComponent implements KeybindCom
 
   @Override
   public @NotNull KeybindComponent children(final @NotNull List<? extends ComponentLike> children) {
-    return new KeybindComponentImpl(children, this.style, this.keybind);
+    return new KeybindComponentImpl(ComponentLike.asComponents(children, NOT_EMPTY), this.style, this.keybind);
   }
 
   @Override
@@ -63,29 +62,18 @@ final class KeybindComponentImpl extends AbstractComponent implements KeybindCom
   }
 
   @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (!(other instanceof KeybindComponent)) return false;
-    if (!super.equals(other)) return false;
-    final KeybindComponent that = (KeybindComponent) other;
-    return Objects.equals(this.keybind, that.keybind());
-  }
-
-  @Override
-  public int hashCode() {
-    int result = super.hashCode();
-    result = (31 * result) + this.keybind.hashCode();
-    return result;
-  }
-
-  @Override
-  protected @NotNull Stream<? extends ExaminableProperty> examinablePropertiesWithoutChildren() {
+  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
     return Stream.concat(
       Stream.of(
         ExaminableProperty.of("keybind", this.keybind)
       ),
-      super.examinablePropertiesWithoutChildren()
+      KeybindComponent.super.examinableProperties()
     );
+  }
+
+  @Override
+  public String toString() {
+    return this.examine(StringExaminer.simpleEscaping());
   }
 
   @Override
