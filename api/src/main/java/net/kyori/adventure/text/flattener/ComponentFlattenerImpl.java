@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -50,7 +50,10 @@ final class ComponentFlattenerImpl implements ComponentFlattener {
     .mapper(ScoreComponent.class, ScoreComponent::value) // Removed in Vanilla 1.16, but we keep it for backwards compat
     .mapper(SelectorComponent.class, SelectorComponent::pattern)
     .mapper(TextComponent.class, TextComponent::content)
-    .mapper(TranslatableComponent.class, TranslatableComponent::key)
+    .mapper(TranslatableComponent.class, component -> {
+      final @Nullable String fallback = component.fallback();
+      return fallback != null ? fallback : component.key();
+    })
     // The Vanilla game will not print NBT components, expecting those to be resolved with sender context
     .build();
   static final ComponentFlattener TEXT_ONLY = new BuilderImpl()
@@ -129,7 +132,7 @@ final class ComponentFlattenerImpl implements ComponentFlattener {
     });
 
     if (flattener == Handler.NONE) {
-      return this.unknownHandler == null ? null : (component, listener, depth) -> this.unknownHandler.apply(component);
+      return this.unknownHandler == null ? null : (component, listener, depth) -> listener.component(this.unknownHandler.apply(component));
     } else {
       return flattener;
     }

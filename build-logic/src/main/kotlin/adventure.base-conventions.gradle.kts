@@ -2,57 +2,64 @@ plugins {
   id("net.kyori.indra.publishing")
 }
 
+// expose version catalog
+val libs = extensions.getByType(org.gradle.accessors.dm.LibrariesForLibs::class)
+
 indra {
   javaVersions {
-    testWith(8, 11, 17)
+    val testVersions = (project.property("testJdks") as String)
+      .split(",")
+      .map { it.trim().toInt() }
+    testWith().addAll(testVersions)
   }
-  checkstyle("9.3")
+  checkstyle(libs.versions.checkstyle.get())
 
   github("KyoriPowered", "adventure") {
     ci(true)
   }
   mitLicense()
 
+  signWithKeyFromPrefixedProperties("kyori")
   configurePublications {
     pom {
       developers {
         developer {
-          id.set("kashike")
-          timezone.set("America/Vancouver")
+          id = "kashike"
+          timezone = "America/Vancouver"
         }
 
         developer {
-          id.set("lucko")
-          name.set("Luck")
-          url.set("https://lucko.me")
-          email.set("git@lucko.me")
+          id = "lucko"
+          name = "Luck"
+          url = "https://lucko.me"
+          email = "git@lucko.me"
         }
 
         developer {
-          id.set("zml")
-          name.set("zml")
-          timezone.set("America/Vancouver")
+          id = "zml"
+          name = "zml"
+          timezone = "America/Vancouver"
         }
 
         developer {
-          id.set("Electroid")
+          id = "Electroid"
         }
 
         developer {
-          id.set("minidigger")
-          name.set("MiniDigger")
+          id = "minidigger"
+          name = "MiniDigger"
         }
 
         developer {
-          id.set("kezz")
+          id = "kezz"
         }
 
         developer {
-          id.set("broccolai")
+          id = "broccolai"
         }
 
         developer {
-          id.set("rymiel")
+          id = "rymiel"
         }
       }
     }

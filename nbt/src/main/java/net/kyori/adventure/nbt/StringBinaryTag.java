@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,8 @@
  */
 package net.kyori.adventure.nbt;
 
-import java.util.stream.Stream;
-import net.kyori.examination.ExaminableProperty;
-import org.jetbrains.annotations.Debug;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A binary tag holding a {@link String} value.
@@ -40,8 +37,22 @@ public interface StringBinaryTag extends BinaryTag {
    *
    * @param value the value
    * @return a binary tag
-   * @since 4.0.0
+   * @since 4.14.0
    */
+  static @NotNull StringBinaryTag stringBinaryTag(final @NotNull String value) {
+    return new StringBinaryTagImpl(value);
+  }
+
+  /**
+   * Creates a binary tag holding a {@link String} value.
+   *
+   * @param value the value
+   * @return a binary tag
+   * @since 4.0.0
+   * @deprecated for removal since 4.14.0, use {@link #stringBinaryTag(String)} instead.
+   */
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
   static @NotNull StringBinaryTag of(final @NotNull String value) {
     return new StringBinaryTagImpl(value);
   }
@@ -58,36 +69,4 @@ public interface StringBinaryTag extends BinaryTag {
    * @since 4.0.0
    */
   @NotNull String value();
-}
-
-@Debug.Renderer(text = "\"\\\"\" + this.value + \"\\\"\"", hasChildren = "false")
-final class StringBinaryTagImpl extends AbstractBinaryTag implements StringBinaryTag {
-  private final String value;
-
-  StringBinaryTagImpl(final String value) {
-    this.value = value;
-  }
-
-  @Override
-  public @NotNull String value() {
-    return this.value;
-  }
-
-  @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (other == null || this.getClass() != other.getClass()) return false;
-    final StringBinaryTagImpl that = (StringBinaryTagImpl) other;
-    return this.value.equals(that.value);
-  }
-
-  @Override
-  public int hashCode() {
-    return this.value.hashCode();
-  }
-
-  @Override
-  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
-    return Stream.of(ExaminableProperty.of("value", this.value));
-  }
 }

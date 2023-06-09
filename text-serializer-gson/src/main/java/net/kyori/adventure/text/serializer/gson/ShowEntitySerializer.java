@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,11 +35,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.HoverEvent;
 import org.jetbrains.annotations.Nullable;
 
-final class ShowEntitySerializer extends TypeAdapter<HoverEvent.ShowEntity> {
-  static final String TYPE = "type";
-  static final String ID = "id";
-  static final String NAME = "name";
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SHOW_ENTITY_ID;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SHOW_ENTITY_NAME;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SHOW_ENTITY_TYPE;
 
+final class ShowEntitySerializer extends TypeAdapter<HoverEvent.ShowEntity> {
   static TypeAdapter<HoverEvent.ShowEntity> create(final Gson gson) {
     return new ShowEntitySerializer(gson).nullSafe();
   }
@@ -60,11 +60,11 @@ final class ShowEntitySerializer extends TypeAdapter<HoverEvent.ShowEntity> {
 
     while (in.hasNext()) {
       final String fieldName = in.nextName();
-      if (fieldName.equals(TYPE)) {
+      if (fieldName.equals(SHOW_ENTITY_TYPE)) {
         type = this.gson.fromJson(in, SerializerFactory.KEY_TYPE);
-      } else if (fieldName.equals(ID)) {
+      } else if (fieldName.equals(SHOW_ENTITY_ID)) {
         id = UUID.fromString(in.nextString());
-      } else if (fieldName.equals(NAME)) {
+      } else if (fieldName.equals(SHOW_ENTITY_NAME)) {
         name = this.gson.fromJson(in, SerializerFactory.COMPONENT_TYPE);
       } else {
         in.skipValue();
@@ -76,22 +76,22 @@ final class ShowEntitySerializer extends TypeAdapter<HoverEvent.ShowEntity> {
     }
     in.endObject();
 
-    return HoverEvent.ShowEntity.of(type, id, name);
+    return HoverEvent.ShowEntity.showEntity(type, id, name);
   }
 
   @Override
   public void write(final JsonWriter out, final HoverEvent.ShowEntity value) throws IOException {
     out.beginObject();
 
-    out.name(TYPE);
+    out.name(SHOW_ENTITY_TYPE);
     this.gson.toJson(value.type(), SerializerFactory.KEY_TYPE, out);
 
-    out.name(ID);
+    out.name(SHOW_ENTITY_ID);
     out.value(value.id().toString());
 
     final @Nullable Component name = value.name();
     if (name != null) {
-      out.name(NAME);
+      out.name(SHOW_ENTITY_NAME);
       this.gson.toJson(name, SerializerFactory.COMPONENT_TYPE, out);
     }
 

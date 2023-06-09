@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,13 +26,15 @@ package net.kyori.adventure.text.minimessage.tag.standard;
 import java.util.HashMap;
 import java.util.Map;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.ParsingException;
+import net.kyori.adventure.text.minimessage.internal.serializer.SerializableResolver;
+import net.kyori.adventure.text.minimessage.internal.serializer.StyleClaim;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,12 +43,21 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.10.0
  */
-@ApiStatus.Internal
-public final class ColorTagResolver implements TagResolver {
-  public static final String HEX = "#";
-  public static final String COLOR_3 = "c";
-  public static final String COLOR_2 = "colour";
-  public static final String COLOR = "color";
+final class ColorTagResolver implements TagResolver, SerializableResolver.Single {
+  private static final String COLOR_3 = "c";
+  private static final String COLOR_2 = "colour";
+  private static final String COLOR = "color";
+
+  static final TagResolver INSTANCE = new ColorTagResolver();
+  private static final StyleClaim<TextColor> STYLE = StyleClaim.claim(COLOR, Style::color, (color, emitter) -> {
+    // TODO: custom aliases
+    // TODO: compact vs expanded format? COLOR vs color:COLOR vs c:COLOR
+    if (color instanceof NamedTextColor) {
+      emitter.tag(NamedTextColor.NAMES.key((NamedTextColor) color));
+    } else {
+      emitter.tag(color.asHexString());
+    }
+  });
 
   private static final Map<String, TextColor> COLOR_ALIASES = new HashMap<>();
 
@@ -75,20 +86,24 @@ public final class ColorTagResolver implements TagResolver {
       colorName = name;
     }
 
+    final TextColor color = resolveColor(colorName, ctx);
+    return Tag.styling(color);
+  }
+
+  static @NotNull TextColor resolveColor(final @NotNull String colorName, final @NotNull Context ctx) throws ParsingException {
     final TextColor color;
     if (COLOR_ALIASES.containsKey(colorName)) {
       color = COLOR_ALIASES.get(colorName);
-    } else if (colorName.charAt(0) == '#') {
+    } else if (colorName.charAt(0) == TextColor.HEX_CHARACTER) {
       color = TextColor.fromHexString(colorName);
     } else {
       color = NamedTextColor.NAMES.value(colorName);
     }
 
     if (color == null) {
-      throw ctx.newException("Don't know how to turn '" + colorName + "' into a color");
+      throw ctx.newException(String.format("Unable to parse a color from '%s'. Please use named colours or hex (#RRGGBB) colors.", colorName));
     }
-
-    return Tag.styling(color);
+    return color;
   }
 
   @Override
@@ -97,5 +112,10 @@ public final class ColorTagResolver implements TagResolver {
       || TextColor.fromHexString(name) != null
       || NamedTextColor.NAMES.value(name) != null
       || COLOR_ALIASES.containsKey(name);
+  }
+
+  @Override
+  public @Nullable StyleClaim<?> claimStyle() {
+    return STYLE;
   }
 }

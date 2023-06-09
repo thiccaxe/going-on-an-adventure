@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import net.kyori.adventure.text.minimessage.tree.Node;
 import net.kyori.adventure.text.serializer.ComponentSerializer;
+import net.kyori.adventure.util.PlatformAPI;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -165,7 +166,7 @@ public interface MiniMessage extends ComponentSerializer<Component, Component, S
    * @return the root of the resulting tree
    * @since 4.10.0
    */
-  @NotNull Node deserializeToTree(@NotNull String input);
+  Node.@NotNull Root deserializeToTree(final @NotNull String input);
 
   /**
    * Deserializes a string into a tree of parsed elements, with a tag resolver to parse tags of the form {@code <key>}.
@@ -178,7 +179,7 @@ public interface MiniMessage extends ComponentSerializer<Component, Component, S
    * @return the root of the resulting tree
    * @since 4.10.0
    */
-  @NotNull Node deserializeToTree(final @NotNull String input, final @NotNull TagResolver tagResolver);
+  Node.@NotNull Root deserializeToTree(final @NotNull String input, final @NotNull TagResolver tagResolver);
 
   /**
    * Deserializes a string into a tree of parsed elements, with a tag resolver to parse tags of the form {@code <key>}.
@@ -191,7 +192,7 @@ public interface MiniMessage extends ComponentSerializer<Component, Component, S
    * @return the root of the resulting tree
    * @since 4.10.0
    */
-  default @NotNull Node deserializeToTree(final @NotNull String input, final @NotNull TagResolver... tagResolvers) {
+  default Node.@NotNull Root deserializeToTree(final @NotNull String input, final @NotNull TagResolver... tagResolvers) {
     return this.deserializeToTree(input, TagResolver.resolver(tagResolvers));
   }
 
@@ -273,6 +274,16 @@ public interface MiniMessage extends ComponentSerializer<Component, Component, S
     @NotNull Builder postProcessor(final @NotNull UnaryOperator<Component> postProcessor);
 
     /**
+     * Specify a function that takes the string at the start of the parser process.
+     * <p>By default, this does absolutely nothing.</p>
+     *
+     * @param preProcessor method run at the start of parsing
+     * @return this builder
+     * @since 4.11.0
+     */
+    @NotNull Builder preProcessor(final @NotNull UnaryOperator<String> preProcessor);
+
+    /**
      * Builds the serializer.
      *
      * @return the built serializer
@@ -286,8 +297,10 @@ public interface MiniMessage extends ComponentSerializer<Component, Component, S
    * A {@link MiniMessage} service provider.
    *
    * @since 4.10.0
+   * @hidden
    */
   @ApiStatus.Internal
+  @PlatformAPI
   interface Provider {
     /**
      * Provides a standard {@link MiniMessage} instance.
@@ -296,6 +309,7 @@ public interface MiniMessage extends ComponentSerializer<Component, Component, S
      * @since 4.10.0
      */
     @ApiStatus.Internal
+    @PlatformAPI
     @NotNull MiniMessage miniMessage();
 
     /**
@@ -305,6 +319,7 @@ public interface MiniMessage extends ComponentSerializer<Component, Component, S
      * @since 4.10.0
      */
     @ApiStatus.Internal
+    @PlatformAPI
     @NotNull Consumer<Builder> builder();
   }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 package net.kyori.adventure.nbt;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,8 +37,22 @@ public interface ByteArrayBinaryTag extends ArrayBinaryTag, Iterable<Byte> {
    *
    * @param value the value
    * @return a binary tag
-   * @since 4.0.0
+   * @since 4.14.0
    */
+  static @NotNull ByteArrayBinaryTag byteArrayBinaryTag(final byte@NotNull... value) {
+    return new ByteArrayBinaryTagImpl(value);
+  }
+
+  /**
+   * Creates a binary tag holding a {@code byte}-array value.
+   *
+   * @param value the value
+   * @return a binary tag
+   * @since 4.0.0
+   * @deprecated for removal since 4.14.0, use {@link #byteArrayBinaryTag(byte...)}  instead.
+   */
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
   static @NotNull ByteArrayBinaryTag of(final byte@NotNull... value) {
     return new ByteArrayBinaryTagImpl(value);
   }

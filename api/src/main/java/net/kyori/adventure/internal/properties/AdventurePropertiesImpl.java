@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,9 +49,14 @@ final class AdventurePropertiesImpl {
         PROPERTIES.load(is);
       } catch (final IOException e) {
         // Well, that's awkward.
-        e.printStackTrace();
+        print(e);
       }
     }
+  }
+
+  @SuppressWarnings("CatchAndPrintStacktrace") // we don't have any better options on Java 8
+  private static void print(final Throwable ex) {
+    ex.printStackTrace();
   }
 
   private AdventurePropertiesImpl() {

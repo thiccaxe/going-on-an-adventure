@@ -2,28 +2,32 @@ plugins {
   `kotlin-dsl`
 }
 
-repositories {
-  maven(url = "https://repo.stellardrift.ca/repository/internal/") {
-    name = "stellardriftReleases"
-    mavenContent { releasesOnly() }
-  }
-  maven(url = "https://repo.stellardrift.ca/repository/snapshots/") {
-    name = "stellardriftSnapshots"
-    mavenContent { snapshotsOnly() }
-  }
+dependencies {
+  implementation(libs.build.errorpronePlugin)
+  implementation(libs.build.indra)
+  implementation(libs.build.indra.crossdoc)
+  implementation(libs.build.indra.sonatype)
+  implementation(libs.build.indra.spotless)
+  implementation(libs.build.testLogger)
+  compileOnly(libs.build.jmh)
+  implementation(libs.build.goomph)
 }
 
 dependencies {
-  val indraVersion = "2.1.1"
-  implementation("net.kyori", "indra-common", indraVersion)
-  implementation("net.kyori", "indra-publishing-sonatype", indraVersion)
-  implementation("net.kyori", "indra-crossdoc", indraVersion)
-  implementation("com.adarshr", "gradle-test-logger-plugin", "3.1.0")
-  implementation("me.champeau.jmh", "jmh-gradle-plugin", "0.6.6")
-  implementation("com.diffplug.gradle", "goomph", "3.35.0")
+  compileOnly(files(libs::class.java.protectionDomain.codeSource.location))
 }
 
 java {
-  sourceCompatibility = JavaVersion.VERSION_1_8
-  targetCompatibility = JavaVersion.VERSION_1_8
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+kotlin {
+  target {
+    compilations.configureEach {
+      kotlinOptions {
+        jvmTarget = "11"
+      }
+    }
+  }
 }

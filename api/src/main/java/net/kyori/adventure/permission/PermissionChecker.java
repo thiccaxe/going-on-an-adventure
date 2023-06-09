@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,8 @@ import net.kyori.adventure.pointer.Pointer;
 import net.kyori.adventure.util.TriState;
 import org.jetbrains.annotations.NotNull;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Something that has permissions.
  *
@@ -50,7 +52,8 @@ public interface PermissionChecker extends Predicate<String> {
    * @return a {@link PermissionChecker}
    * @since 4.8.0
    */
-  static @NotNull PermissionChecker always(final TriState state) {
+  static @NotNull PermissionChecker always(final @NotNull TriState state) {
+    requireNonNull(state);
     if (state == TriState.TRUE) return PermissionCheckers.TRUE;
     if (state == TriState.FALSE) return PermissionCheckers.FALSE;
     return PermissionCheckers.NOT_SET;
@@ -63,10 +66,10 @@ public interface PermissionChecker extends Predicate<String> {
    * @return a tri-state result
    * @since 4.8.0
    */
-  @NotNull TriState value(final String permission);
+  @NotNull TriState value(final @NotNull String permission);
 
   @Override
-  default boolean test(final String permission) {
+  default boolean test(final @NotNull String permission) {
     return this.value(permission) == TriState.TRUE;
   }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,12 +25,16 @@ package net.kyori.adventure.text.minimessage.tag.resolver;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.internal.serializer.ClaimConsumer;
+import net.kyori.adventure.text.minimessage.internal.serializer.SerializableResolver;
 import net.kyori.adventure.text.minimessage.tag.Inserting;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class CachingTagResolver implements TagResolver.WithoutArguments, MappableResolver {
+final class CachingTagResolver implements TagResolver.WithoutArguments, MappableResolver, SerializableResolver {
   private static final Tag NULL_REPLACEMENT = (Inserting) () -> {
     throw new UnsupportedOperationException("no-op null tag");
   };
@@ -67,5 +71,29 @@ final class CachingTagResolver implements TagResolver.WithoutArguments, Mappable
     } else {
       return false;
     }
+  }
+
+  @Override
+  public void handle(final @NotNull Component serializable, final @NotNull ClaimConsumer consumer) {
+    if (this.resolver instanceof SerializableResolver) {
+      ((SerializableResolver) this.resolver).handle(serializable, consumer);
+    }
+  }
+
+  @Override
+  public boolean equals(final @Nullable Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof CachingTagResolver)) {
+      return false;
+    }
+    final CachingTagResolver that = (CachingTagResolver) other;
+    return Objects.equals(this.resolver, that.resolver);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.resolver);
   }
 }

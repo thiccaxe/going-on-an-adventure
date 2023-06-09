@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@ import net.kyori.adventure.text.renderer.ComponentRenderer;
 import net.kyori.adventure.util.Index;
 import net.kyori.examination.Examinable;
 import net.kyori.examination.ExaminableProperty;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -210,6 +211,19 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
   }
 
   /**
+   * Creates a hover event that shows an achievement on hover.
+   *
+   * @param value the achievement value
+   * @return a hover event
+   * @since 4.14.0
+   * @deprecated Removed in Vanilla 1.12, but we keep it for backwards compat
+   */
+  @Deprecated
+  public static @NotNull HoverEvent<String> showAchievement(final @NotNull String value) {
+    return new HoverEvent<>(Action.SHOW_ACHIEVEMENT, value);
+  }
+
+  /**
    * Creates a hover event.
    *
    * @param action the action
@@ -337,8 +351,23 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param item the item
      * @param count the count
      * @return a {@code ShowItem}
-     * @since 4.0.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowItem showItem(final @NotNull Key item, final @Range(from = 0, to = Integer.MAX_VALUE) int count) {
+      return showItem(item, count, null);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param item the item
+     * @param count the count
+     * @return a {@code ShowItem}
+     * @since 4.0.0
+     * @deprecated for removal since 4.14.0, use {@link #showItem(Key, int)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowItem of(final @NotNull Key item, final @Range(from = 0, to = Integer.MAX_VALUE) int count) {
       return of(item, count, null);
     }
@@ -349,8 +378,23 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param item the item
      * @param count the count
      * @return a {@code ShowItem}
-     * @since 4.6.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowItem showItem(final @NotNull Keyed item, final @Range(from = 0, to = Integer.MAX_VALUE) int count) {
+      return showItem(item, count, null);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param item the item
+     * @param count the count
+     * @return a {@code ShowItem}
+     * @since 4.6.0
+     * @deprecated for removal since 4.14.0, use {@link #showItem(Keyed, int)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowItem of(final @NotNull Keyed item, final @Range(from = 0, to = Integer.MAX_VALUE) int count) {
       return of(item, count, null);
     }
@@ -362,8 +406,24 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param count the count
      * @param nbt the nbt
      * @return a {@code ShowItem}
-     * @since 4.0.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowItem showItem(final @NotNull Key item, final @Range(from = 0, to = Integer.MAX_VALUE) int count, final @Nullable BinaryTagHolder nbt) {
+      return new ShowItem(requireNonNull(item, "item"), count, nbt);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param item the item
+     * @param count the count
+     * @param nbt the nbt
+     * @return a {@code ShowItem}
+     * @since 4.0.0
+     * @deprecated for removal since 4.14.0, use {@link #showItem(Key, int, BinaryTagHolder)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowItem of(final @NotNull Key item, final @Range(from = 0, to = Integer.MAX_VALUE) int count, final @Nullable BinaryTagHolder nbt) {
       return new ShowItem(requireNonNull(item, "item"), count, nbt);
     }
@@ -375,8 +435,24 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param count the count
      * @param nbt the nbt
      * @return a {@code ShowItem}
-     * @since 4.6.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowItem showItem(final @NotNull Keyed item, final @Range(from = 0, to = Integer.MAX_VALUE) int count, final @Nullable BinaryTagHolder nbt) {
+      return new ShowItem(requireNonNull(item, "item").key(), count, nbt);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param item the item
+     * @param count the count
+     * @param nbt the nbt
+     * @return a {@code ShowItem}
+     * @since 4.6.0
+     * @deprecated for removal since 4.14.0, use {@link #showItem(Keyed, int, BinaryTagHolder)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowItem of(final @NotNull Keyed item, final @Range(from = 0, to = Integer.MAX_VALUE) int count, final @Nullable BinaryTagHolder nbt) {
       return new ShowItem(requireNonNull(item, "item").key(), count, nbt);
     }
@@ -500,8 +576,23 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param type the type
      * @param id the id
      * @return a {@code ShowEntity}
-     * @since 4.0.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowEntity showEntity(final @NotNull Key type, final @NotNull UUID id) {
+      return showEntity(type, id, null);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param type the type
+     * @param id the id
+     * @return a {@code ShowEntity}
+     * @since 4.0.0
+     * @deprecated for removal since 4.14.0, use {@link #showEntity(Key, UUID)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowEntity of(final @NotNull Key type, final @NotNull UUID id) {
       return of(type, id, null);
     }
@@ -512,8 +603,23 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param type the type
      * @param id the id
      * @return a {@code ShowEntity}
-     * @since 4.6.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowEntity showEntity(final @NotNull Keyed type, final @NotNull UUID id) {
+      return showEntity(type, id, null);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param type the type
+     * @param id the id
+     * @return a {@code ShowEntity}
+     * @since 4.6.0
+     * @deprecated for removal since 4.14.0, use {@link #showEntity(Keyed, UUID)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowEntity of(final @NotNull Keyed type, final @NotNull UUID id) {
       return of(type, id, null);
     }
@@ -525,8 +631,24 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param id the id
      * @param name the name
      * @return a {@code ShowEntity}
-     * @since 4.0.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowEntity showEntity(final @NotNull Key type, final @NotNull UUID id, final @Nullable Component name) {
+      return new ShowEntity(requireNonNull(type, "type"), requireNonNull(id, "id"), name);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param type the type
+     * @param id the id
+     * @param name the name
+     * @return a {@code ShowEntity}
+     * @since 4.0.0
+     * @deprecated for removal since 4.14.0, use {@link #showEntity(Key, UUID, Component)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowEntity of(final @NotNull Key type, final @NotNull UUID id, final @Nullable Component name) {
       return new ShowEntity(requireNonNull(type, "type"), requireNonNull(id, "id"), name);
     }
@@ -538,8 +660,24 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
      * @param id the id
      * @param name the name
      * @return a {@code ShowEntity}
-     * @since 4.6.0
+     * @since 4.14.0
      */
+    public static @NotNull ShowEntity showEntity(final @NotNull Keyed type, final @NotNull UUID id, final @Nullable Component name) {
+      return new ShowEntity(requireNonNull(type, "type").key(), requireNonNull(id, "id"), name);
+    }
+
+    /**
+     * Creates.
+     *
+     * @param type the type
+     * @param id the id
+     * @param name the name
+     * @return a {@code ShowEntity}
+     * @since 4.6.0
+     * @deprecated for removal since 4.14.0, use {@link #showEntity(Keyed, UUID, Component)} instead.
+     */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
     public static @NotNull ShowEntity of(final @NotNull Keyed type, final @NotNull UUID id, final @Nullable Component name) {
       return new ShowEntity(requireNonNull(type, "type").key(), requireNonNull(id, "id"), name);
     }
@@ -699,13 +837,26 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
         return value.name(renderer.render(value.name, context));
       }
     });
+    /**
+     * Shows a {@link Component} when hovered over.
+     *
+     * @since 4.14.0
+     * @deprecated Removed in Vanilla 1.12, but we keep it for backwards compat
+     */
+    @Deprecated
+    public static final Action<String> SHOW_ACHIEVEMENT = new Action<>("show_achievement", String.class, true, new Renderer<String>() {
+      @Override
+      public <C> @NotNull String render(final @NotNull ComponentRenderer<C> renderer, final @NotNull C context, final @NotNull String value) {
+        return value;
+      }
+    });
 
     /**
      * The name map.
      *
      * @since 4.0.0
      */
-    public static final Index<String, Action<?>> NAMES = Index.create(constant -> constant.name, SHOW_TEXT, SHOW_ITEM, SHOW_ENTITY);
+    public static final Index<String, Action<?>> NAMES = Index.create(constant -> constant.name, SHOW_TEXT, SHOW_ITEM, SHOW_ENTITY, SHOW_ACHIEVEMENT);
     private final String name;
     private final Class<V> type;
     /**

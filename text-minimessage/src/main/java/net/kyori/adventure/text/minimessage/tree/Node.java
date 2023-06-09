@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 package net.kyori.adventure.text.minimessage.tree;
 
 import java.util.List;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @since 4.10.0
  */
+@ApiStatus.NonExtendable
 public interface Node {
   /**
    * Get a human-readable representation of this node and its descendants for debugging purposes.
@@ -63,4 +65,20 @@ public interface Node {
    * @since 4.10.0
    */
   @Nullable Node parent();
+
+  /**
+   * The root node of a parse.
+   *
+   * @since 4.10.0
+   */
+  @ApiStatus.NonExtendable
+  interface Root extends Node {
+    /**
+     * Get the original provided message which produced this node.
+     *
+     * @return the input message
+     * @since 4.10.0
+     */
+    @NotNull String input();
+  }
 }

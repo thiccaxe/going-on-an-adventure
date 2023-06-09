@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,8 @@
  */
 package net.kyori.adventure.text.serializer.legacy;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -317,5 +319,16 @@ class LegacyComponentSerializerTest {
     final Component deserialized = LegacyComponentSerializer.legacyAmpersand().deserialize(text);
 
     assertEquals(Component.text(text), deserialized);
+  }
+
+  @Test
+  void testNullTextFormat() {
+    final List<CharacterAndFormat> formats = new ArrayList<>(CharacterAndFormat.defaults());
+    formats.remove(CharacterAndFormat.STRIKETHROUGH);
+    final LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection().toBuilder().formats(formats).build();
+
+    final Component strikethough = Component.text("Hello World", Style.style(TextDecoration.STRIKETHROUGH));
+    final String serialized = serializer.serialize(strikethough);
+    assertEquals(serialized, "Hello World");
   }
 }

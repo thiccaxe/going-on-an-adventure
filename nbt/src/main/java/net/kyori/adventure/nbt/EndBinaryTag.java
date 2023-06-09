@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 package net.kyori.adventure.nbt;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -35,8 +36,21 @@ public interface EndBinaryTag extends BinaryTag {
    * Gets the end tag.
    *
    * @return the end tag
-   * @since 4.0.0
+   * @since 4.14.0
    */
+  static @NotNull EndBinaryTag endBinaryTag() {
+    return EndBinaryTagImpl.INSTANCE;
+  }
+
+  /**
+   * Gets the end tag.
+   *
+   * @return the end tag
+   * @since 4.0.0
+   * @deprecated for removal since 4.14.0, use {@link #endBinaryTag()} instead
+   */
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
   static @NotNull EndBinaryTag get() {
     return EndBinaryTagImpl.INSTANCE;
   }
@@ -44,19 +58,5 @@ public interface EndBinaryTag extends BinaryTag {
   @Override
   default @NotNull BinaryTagType<EndBinaryTag> type() {
     return BinaryTagTypes.END;
-  }
-}
-
-final class EndBinaryTagImpl extends AbstractBinaryTag implements EndBinaryTag {
-  static final EndBinaryTagImpl INSTANCE = new EndBinaryTagImpl();
-
-  @Override
-  public boolean equals(final Object that) {
-    return this == that;
-  }
-
-  @Override
-  public int hashCode() {
-    return 0;
   }
 }

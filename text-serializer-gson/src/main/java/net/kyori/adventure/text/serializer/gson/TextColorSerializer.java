@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
+import java.util.Locale;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.jetbrains.annotations.NotNull;
@@ -49,8 +50,12 @@ final class TextColorSerializer extends TypeAdapter<TextColor> {
     } else if (this.downsampleColor) {
       out.value(NamedTextColor.NAMES.key(NamedTextColor.nearestTo(value)));
     } else {
-      out.value(value.asHexString());
+      out.value(asUpperCaseHexString(value));
     }
+  }
+
+  private static String asUpperCaseHexString(final TextColor color) {
+    return String.format(Locale.ROOT, "%c%06X", TextColor.HEX_CHARACTER, color.value()); // to be consistent with vanilla
   }
 
   @Override
@@ -62,7 +67,7 @@ final class TextColorSerializer extends TypeAdapter<TextColor> {
   }
 
   static @Nullable TextColor fromString(final @NotNull String value) {
-    if (value.startsWith("#")) {
+    if (value.startsWith(TextColor.HEX_PREFIX)) {
       return TextColor.fromHexString(value);
     } else {
       return NamedTextColor.NAMES.value(value);

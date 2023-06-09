@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,8 @@
  */
 package net.kyori.adventure.nbt;
 
-import java.util.stream.Stream;
-import net.kyori.examination.ExaminableProperty;
-import org.jetbrains.annotations.Debug;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A binary tag holding a {@code byte} value.
@@ -54,9 +51,9 @@ public interface ByteBinaryTag extends NumberBinaryTag {
    *
    * @param value the value
    * @return a binary tag
-   * @since 4.0.0
+   * @since 4.14.0
    */
-  static @NotNull ByteBinaryTag of(final byte value) {
+  static @NotNull ByteBinaryTag byteBinaryTag(final byte value) {
     if (value == 0) {
       return ZERO;
     } else if (value == 1) {
@@ -64,6 +61,20 @@ public interface ByteBinaryTag extends NumberBinaryTag {
     } else {
       return new ByteBinaryTagImpl(value);
     }
+  }
+
+  /**
+   * Creates a binary tag holding a {@code byte} value.
+   *
+   * @param value the value
+   * @return a binary tag
+   * @since 4.0.0
+   * @deprecated for removal since 4.14.0, use {@link #byteBinaryTag(byte)} instead.
+   */
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
+  static @NotNull ByteBinaryTag of(final byte value) {
+    return byteBinaryTag(value);
   }
 
   @Override
@@ -78,66 +89,4 @@ public interface ByteBinaryTag extends NumberBinaryTag {
    * @since 4.0.0
    */
   byte value();
-}
-
-@Debug.Renderer(text = "\"0x\" + Integer.toString(this.value, 16)", hasChildren = "false")
-final class ByteBinaryTagImpl extends AbstractBinaryTag implements ByteBinaryTag {
-  private final byte value;
-
-  ByteBinaryTagImpl(final byte value) {
-    this.value = value;
-  }
-
-  @Override
-  public byte value() {
-    return this.value;
-  }
-
-  @Override
-  public byte byteValue() {
-    return this.value;
-  }
-
-  @Override
-  public double doubleValue() {
-    return this.value;
-  }
-
-  @Override
-  public float floatValue() {
-    return this.value;
-  }
-
-  @Override
-  public int intValue() {
-    return this.value;
-  }
-
-  @Override
-  public long longValue() {
-    return this.value;
-  }
-
-  @Override
-  public short shortValue() {
-    return this.value;
-  }
-
-  @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (other == null || this.getClass() != other.getClass()) return false;
-    final ByteBinaryTagImpl that = (ByteBinaryTagImpl) other;
-    return this.value == that.value;
-  }
-
-  @Override
-  public int hashCode() {
-    return Byte.hashCode(this.value);
-  }
-
-  @Override
-  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
-    return Stream.of(ExaminableProperty.of("value", this.value));
-  }
 }

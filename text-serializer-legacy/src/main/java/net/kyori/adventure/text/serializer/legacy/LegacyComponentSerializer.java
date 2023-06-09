@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 package net.kyori.adventure.text.serializer.legacy;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import net.kyori.adventure.builder.AbstractBuilder;
@@ -32,8 +33,10 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.flattener.ComponentFlattener;
 import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.util.Buildable;
+import net.kyori.adventure.util.PlatformAPI;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -133,7 +136,7 @@ public interface LegacyComponentSerializer extends ComponentSerializer<Component
    *
    * @since 4.0.0
    */
-  char HEX_CHAR = '#';
+  char HEX_CHAR = TextColor.HEX_CHARACTER;
 
   /**
    * Deserialize a component from a legacy {@link String}.
@@ -258,6 +261,15 @@ public interface LegacyComponentSerializer extends ComponentSerializer<Component
     @NotNull Builder flattener(final @NotNull ComponentFlattener flattener);
 
     /**
+     * Sets the formats to use.
+     *
+     * @param formats the formats
+     * @return this builder
+     * @since 4.14.0
+     */
+    @NotNull Builder formats(final @NotNull List<CharacterAndFormat> formats);
+
+    /**
      * Builds the serializer.
      *
      * @return the built serializer
@@ -272,6 +284,7 @@ public interface LegacyComponentSerializer extends ComponentSerializer<Component
    * @since 4.8.0
    */
   @ApiStatus.Internal
+  @PlatformAPI
   interface Provider {
     /**
      * Provides a {@link LegacyComponentSerializer} using {@link #AMPERSAND_CHAR}.
@@ -280,6 +293,7 @@ public interface LegacyComponentSerializer extends ComponentSerializer<Component
      * @since 4.8.0
      */
     @ApiStatus.Internal
+    @PlatformAPI
     @NotNull LegacyComponentSerializer legacyAmpersand();
 
     /**
@@ -289,6 +303,7 @@ public interface LegacyComponentSerializer extends ComponentSerializer<Component
      * @since 4.8.0
      */
     @ApiStatus.Internal
+    @PlatformAPI
     @NotNull LegacyComponentSerializer legacySection();
 
     /**
@@ -298,6 +313,7 @@ public interface LegacyComponentSerializer extends ComponentSerializer<Component
      * @since 4.8.0
      */
     @ApiStatus.Internal
+    @PlatformAPI
     @NotNull Consumer<Builder> legacy();
   }
 }

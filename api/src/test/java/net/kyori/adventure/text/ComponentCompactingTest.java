@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,15 @@
 package net.kyori.adventure.text;
 
 import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
+import org.junit.jupiter.api.condition.DisabledIf;
 
 import static net.kyori.adventure.key.Key.key;
 import static net.kyori.adventure.text.Component.empty;
@@ -314,4 +317,104 @@ class ComponentCompactingTest {
 
     assertEquals(expectedCompact, notCompact.compact());
   }
+
+  private static boolean shouldSkipSimplifyingStyleForBlankComponents() {
+    return !ComponentCompaction.SIMPLIFY_STYLE_FOR_BLANK_COMPONENTS;
+  }
+
+  @DisabledIf(value = "shouldSkipSimplifyingStyleForBlankComponents", disabledReason = "https://github.com/KyoriPowered/adventure/issues/849") // todo: can this be fixed a better way?
+  @Test
+  void testBlankStyleRemoval() {
+    final String blank = "   ";
+
+    final Component expectedCompact = text(blank);
+    final Component notCompact = text(blank, NamedTextColor.RED);
+
+    assertEquals(expectedCompact, notCompact.compact());
+  }
+
+  @DisabledIf(value = "shouldSkipSimplifyingStyleForBlankComponents", disabledReason = "https://github.com/KyoriPowered/adventure/issues/849") // todo: can this be fixed a better way?
+  @Test
+  void testBlankCompactionWithRemovableStyle() {
+    final String blank = "   ";
+
+    final Component expectedCompact = text(blank);
+    final Component notCompact = text().append(
+      text(blank, NamedTextColor.RED)
+    ).build();
+
+    assertEquals(expectedCompact, notCompact.compact());
+  }
+
+  @DisabledIf(value = "shouldSkipSimplifyingStyleForBlankComponents", disabledReason = "https://github.com/KyoriPowered/adventure/issues/849") // todo: can this be fixed a better way?
+  @Test
+  void testBlankCompactionWithManyStyle() {
+    final String blank = "   ";
+
+    final Component expectedCompact = text(blank + blank + blank + blank);
+    final Component notCompact = text().append(
+      text(blank, NamedTextColor.RED)
+        .append(text(blank).decorate(TextDecoration.ITALIC))
+    ).append(
+      text(blank).decorate(TextDecoration.OBFUSCATED)
+        .append(text(blank, TextColor.color(0xDEADB33F)))
+    ).build();
+
+    assertEquals(expectedCompact, notCompact.compact());
+  }
+
+  @Test
+  void testBlankCompactionWithNonRemovableStyle() {
+    final String blank = "   ";
+
+    final Component expectedCompact = text(blank).decorate(TextDecoration.STRIKETHROUGH);
+    final Component notCompact = text().append(
+      text(blank).decorate(TextDecoration.STRIKETHROUGH)
+    ).build();
+
+    assertEquals(expectedCompact, notCompact.compact());
+  }
+
+  @Test
+  void testBlankCompactionWithManyNonRemovableStyle() {
+    final String blank = "   ";
+
+    final Component notCompact = text().append(
+      text(blank).decorate(TextDecoration.STRIKETHROUGH)
+        .append(text(blank).decorate(TextDecoration.BOLD))
+    ).append(
+      text(blank).decorate(TextDecoration.UNDERLINED)
+        .append(text(blank).font(Key.key("kyori:meow")))
+    ).build();
+
+    assertEquals(notCompact, notCompact.compact());
+  }
+
+  @Test
+  void testEmptyCompactionWithManyNonRemovableStyle() {
+    final Component expectedCompact = text("meow");
+    final Component notCompact = text().content("meow").append(
+      empty().decorate(TextDecoration.STRIKETHROUGH)
+        .append(empty().decorate(TextDecoration.BOLD))
+    ).append(
+      empty().decorate(TextDecoration.UNDERLINED)
+        .append(empty().font(Key.key("kyori:meow")))
+    ).build();
+
+    assertEquals(expectedCompact, notCompact.compact());
+  }
+
+  // https://github.com/KyoriPowered/adventure/issues/780
+  @Test
+  void testColorPreservedWithDecorations() {
+    final Component expectedComponent = text()
+      .decorate(TextDecoration.UNDERLINED)
+      .append(text(" ", NamedTextColor.RED))
+      .append(text(" ", NamedTextColor.GREEN))
+      .append(text(" ", NamedTextColor.BLUE))
+      .build();
+
+    assertEquals(expectedComponent, expectedComponent.compact());
+  }
+
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -109,8 +109,7 @@ public interface Style extends Buildable<Style, Style.Builder>, Examinable, Styl
    * @since 4.0.0
    */
   static @NotNull Style style(final @Nullable TextColor color) {
-    if (color == null) return empty();
-    return new StyleImpl(null, color, TextDecoration.State.NOT_SET, TextDecoration.State.NOT_SET, TextDecoration.State.NOT_SET, TextDecoration.State.NOT_SET, TextDecoration.State.NOT_SET, null, null, null);
+    return empty().color(color);
   }
 
   /**
@@ -343,6 +342,18 @@ public interface Style extends Buildable<Style, Style.Builder>, Examinable, Styl
   @NotNull Style decoration(final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state);
 
   /**
+   * Sets the state of a decoration on this style to {@code state} if the current state of
+   * the decoration is {@link TextDecoration.State#NOT_SET}.
+   *
+   * @param decoration the decoration
+   * @param state the state
+   * @return a style
+   * @since 4.12.0
+   */
+  @Override
+  @NotNull Style decorationIfAbsent(final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state);
+
+  /**
    * Gets a map of decorations this style has.
    *
    * @return a set of decorations this style has
@@ -517,6 +528,15 @@ public interface Style extends Buildable<Style, Style.Builder>, Examinable, Styl
    * @since 4.0.0
    */
   @NotNull Style merge(final @NotNull Style that, final Merge.@NotNull Strategy strategy, final @NotNull Set<Merge> merges);
+
+  /**
+   * Simplify this style to remove any information that is redundant.
+   *
+   * @param that parent to compare against
+   * @return a new, simplified style
+   * @since 4.12.0
+   */
+  @NotNull Style unmerge(final @NotNull Style that);
 
   /**
    * Tests if this style is empty.
@@ -761,6 +781,18 @@ public interface Style extends Buildable<Style, Style.Builder>, Examinable, Styl
     @Override
     @Contract("_, _ -> this")
     @NotNull Builder decoration(final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state);
+
+    /**
+     * Sets the state of a decoration on this style to {@code state} if the current state of the decoration is {@link TextDecoration.State#NOT_SET}.
+     *
+     * @param decoration the decoration
+     * @param state the state
+     * @return this builder
+     * @since 4.12.0
+     */
+    @Override
+    @Contract("_, _ -> this")
+    @NotNull Builder decorationIfAbsent(final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state);
 
     /**
      * Sets the click event.

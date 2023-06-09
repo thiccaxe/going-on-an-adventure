@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,11 +73,11 @@ public abstract class BinaryTagType<T extends BinaryTag> implements Predicate<Bi
   public abstract void write(final @NotNull T tag, final @NotNull DataOutput output) throws IOException;
 
   @SuppressWarnings("unchecked") // HACK: generics suck
-  static <T extends BinaryTag> void write(final BinaryTagType<? extends BinaryTag> type, final T tag, final DataOutput output) throws IOException {
+  static <T extends BinaryTag> void writeUntyped(final BinaryTagType<? extends BinaryTag> type, final T tag, final DataOutput output) throws IOException {
     ((BinaryTagType<T>) type).write(tag, output);
   }
 
-  static @NotNull BinaryTagType<? extends BinaryTag> of(final byte id) {
+  static @NotNull BinaryTagType<? extends BinaryTag> binaryTagType(final byte id) {
     for (int i = 0; i < TYPES.size(); i++) {
       final BinaryTagType<? extends BinaryTag> type = TYPES.get(i);
       if (type.id() == id) {
@@ -84,6 +85,12 @@ public abstract class BinaryTagType<T extends BinaryTag> implements Predicate<Bi
       }
     }
     throw new IllegalArgumentException(String.valueOf(id));
+  }
+
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
+  static @NotNull BinaryTagType<? extends BinaryTag> of(final byte id) {
+    return binaryTagType(id);
   }
 
   static <T extends BinaryTag> @NotNull BinaryTagType<T> register(final Class<T> type, final byte id, final Reader<T> reader, final @Nullable Writer<T> writer) {

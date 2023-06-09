@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,11 +40,11 @@ class BigTest {
   private static final double DOUBLE_DELTA = 1e-15;
   private static final byte[] BYTE_ARRAY_TEST = new byte[1000];
   private static final ListBinaryTag LONG_LIST = ListBinaryTag.builder(BinaryTagTypes.LONG)
-    .add(LongBinaryTag.of(11))
-    .add(LongBinaryTag.of(12))
-    .add(LongBinaryTag.of(13))
-    .add(LongBinaryTag.of(14))
-    .add(LongBinaryTag.of(15))
+    .add(LongBinaryTag.longBinaryTag(11))
+    .add(LongBinaryTag.longBinaryTag(12))
+    .add(LongBinaryTag.longBinaryTag(13))
+    .add(LongBinaryTag.longBinaryTag(14))
+    .add(LongBinaryTag.longBinaryTag(15))
     .build();
   private static final ListBinaryTag COMPOUND_LIST = ListBinaryTag.builder(BinaryTagTypes.COMPOUND)
     .add(

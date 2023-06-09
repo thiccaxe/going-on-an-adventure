@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
  */
 package net.kyori.adventure.text.format;
 
+import java.util.List;
 import java.util.stream.Stream;
 import net.kyori.adventure.util.HSVLike;
 import net.kyori.adventure.util.RGBLike;
@@ -31,6 +32,8 @@ import net.kyori.examination.ExaminableProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A color which may be applied to a {@link Style}.
@@ -44,6 +47,19 @@ import org.jetbrains.annotations.Range;
  * @since 4.0.0
  */
 public interface TextColor extends Comparable<TextColor>, Examinable, RGBLike, StyleBuilderApplicable, TextFormat {
+  /**
+   * The hex character.
+   *
+   * @since 4.14.0
+   */
+  char HEX_CHARACTER = '#';
+  /**
+   * The hex character, in {@code String} format.
+   *
+   * @since 4.14.0
+   */
+  String HEX_PREFIX = "#";
+
   /**
    * Creates a new text colour.
    *
@@ -141,7 +157,7 @@ public interface TextColor extends Comparable<TextColor>, Examinable, RGBLike, S
    * @since 4.0.0
    */
   static @Nullable TextColor fromHexString(final @NotNull String string) {
-    if (string.startsWith("#")) {
+    if (string.startsWith(HEX_PREFIX)) {
       try {
         final int hex = Integer.parseInt(string.substring(1), 16);
         return color(hex);
@@ -160,7 +176,7 @@ public interface TextColor extends Comparable<TextColor>, Examinable, RGBLike, S
    * @since 4.0.0
    */
   static @Nullable TextColor fromCSSHexString(final @NotNull String string) {
-    if (string.startsWith("#")) {
+    if (string.startsWith(HEX_PREFIX)) {
       final String hexString = string.substring(1);
       if (hexString.length() != 3 && hexString.length() != 6) {
         return null;
@@ -199,7 +215,7 @@ public interface TextColor extends Comparable<TextColor>, Examinable, RGBLike, S
    * @since 4.0.0
    */
   default @NotNull String asHexString() {
-    return String.format("#%06x", this.value());
+    return String.format("%c%06x", HEX_CHARACTER, this.value());
   }
 
   /**
@@ -259,6 +275,34 @@ public interface TextColor extends Comparable<TextColor>, Examinable, RGBLike, S
       Math.round(ag + clampedT * (bg - ag)),
       Math.round(ab + clampedT * (bb - ab))
     );
+  }
+
+  /**
+   * Find the colour nearest to the provided colour.
+   *
+   * @param values the colours for matching
+   * @param any colour to match
+   * @param <C> the color type
+   * @return nearest named colour. will always return a value
+   * @since 4.14.0
+   */
+  static <C extends TextColor> @NotNull C nearestColorTo(final @NotNull List<C> values, final @NotNull TextColor any) {
+    requireNonNull(any, "color");
+
+    float matchedDistance = Float.MAX_VALUE;
+    C match = values.get(0);
+    for (int i = 0, length = values.size(); i < length; i++) {
+      final C potential = values.get(i);
+      final float distance = TextColorImpl.distance(any.asHSV(), potential.asHSV());
+      if (distance < matchedDistance) {
+        match = potential;
+        matchedDistance = distance;
+      }
+      if (distance == 0) {
+        break; // same colour! whoo!
+      }
+    }
+    return match;
   }
 
   @Override

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,6 @@
 package net.kyori.adventure.text.minimessage;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
@@ -32,13 +31,14 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.parser.ParsingExceptionImpl;
-import net.kyori.adventure.text.minimessage.parser.Token;
-import net.kyori.adventure.text.minimessage.parser.TokenParser;
-import net.kyori.adventure.text.minimessage.parser.TokenType;
-import net.kyori.adventure.text.minimessage.parser.node.ElementNode;
-import net.kyori.adventure.text.minimessage.parser.node.TagNode;
-import net.kyori.adventure.text.minimessage.parser.node.ValueNode;
+import net.kyori.adventure.text.minimessage.internal.parser.ParsingExceptionImpl;
+import net.kyori.adventure.text.minimessage.internal.parser.Token;
+import net.kyori.adventure.text.minimessage.internal.parser.TokenParser;
+import net.kyori.adventure.text.minimessage.internal.parser.TokenType;
+import net.kyori.adventure.text.minimessage.internal.parser.node.ElementNode;
+import net.kyori.adventure.text.minimessage.internal.parser.node.RootNode;
+import net.kyori.adventure.text.minimessage.internal.parser.node.TagNode;
+import net.kyori.adventure.text.minimessage.internal.parser.node.ValueNode;
 import net.kyori.adventure.text.minimessage.tag.Inserting;
 import net.kyori.adventure.text.minimessage.tag.Modifying;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -59,13 +59,17 @@ final class MiniMessageParser {
     this.tagResolver = tagResolver;
   }
 
-  @NotNull String escapeTokens(final @NotNull String richMessage, final @NotNull ContextImpl context) {
-    final StringBuilder sb = new StringBuilder(richMessage.length());
-    this.escapeTokens(sb, richMessage, context);
+  @NotNull String escapeTokens(final @NotNull ContextImpl context) {
+    final StringBuilder sb = new StringBuilder(context.message().length());
+    this.escapeTokens(sb, context);
     return sb.toString();
   }
 
-  void escapeTokens(final StringBuilder sb, final @NotNull String richMessage, final @NotNull ContextImpl context) {
+  void escapeTokens(final StringBuilder sb, final @NotNull ContextImpl context) {
+    this.escapeTokens(sb, context.message(), context);
+  }
+
+  private void escapeTokens(final StringBuilder sb, final String richMessage, final ContextImpl context) {
     this.processTokens(sb, richMessage, context, (token, builder) -> {
       builder.append('\\').append(TokenParser.TAG_START);
       if (token.type() == TokenType.CLOSE_TAG) {
@@ -82,15 +86,19 @@ final class MiniMessageParser {
     });
   }
 
-  @NotNull String stripTokens(final @NotNull String richMessage, final @NotNull ContextImpl context) {
-    final StringBuilder sb = new StringBuilder(richMessage.length());
-    this.processTokens(sb, richMessage, context, (token, builder) -> {});
+  @NotNull String stripTokens(final @NotNull ContextImpl context) {
+    final StringBuilder sb = new StringBuilder(context.message().length());
+    this.processTokens(sb, context, (token, builder) -> {});
     return sb.toString();
+  }
+
+  private void processTokens(final @NotNull StringBuilder sb, final @NotNull ContextImpl context, final BiConsumer<Token, StringBuilder> tagHandler) {
+    this.processTokens(sb, context.message(), context, tagHandler);
   }
 
   private void processTokens(final @NotNull StringBuilder sb, final @NotNull String richMessage, final @NotNull ContextImpl context, final BiConsumer<Token, StringBuilder> tagHandler) {
     final TagResolver combinedResolver = TagResolver.resolver(this.tagResolver, context.extraTags());
-    final List<Token> root = TokenParser.tokenize(richMessage);
+    final List<Token> root = TokenParser.tokenize(richMessage, true);
     for (final Token token : root) {
       switch (token.type()) {
         case TEXT:
@@ -98,6 +106,7 @@ final class MiniMessageParser {
           break;
         case OPEN_TAG:
         case CLOSE_TAG:
+        case OPEN_CLOSE_TAG:
           // extract tag name
           if (token.childTokens().isEmpty()) {
             sb.append(richMessage, token.startIndex(), token.endIndex());
@@ -116,12 +125,13 @@ final class MiniMessageParser {
     }
   }
 
-  @NotNull ElementNode parseToTree(final @NotNull String richMessage, final @NotNull ContextImpl context) {
+  @NotNull RootNode parseToTree(final @NotNull ContextImpl context) {
     final TagResolver combinedResolver = TagResolver.resolver(this.tagResolver, context.extraTags());
+    final String processedMessage = context.preProcessor().apply(context.message());
     final Consumer<String> debug = context.debugOutput();
     if (debug != null) {
       debug.accept("Beginning parsing message ");
-      debug.accept(richMessage);
+      debug.accept(processedMessage);
       debug.accept("\n");
     }
 
@@ -182,10 +192,10 @@ final class MiniMessageParser {
       return combinedResolver.has(sanitized);
     };
 
-    final String preProcessed = TokenParser.resolvePreProcessTags(richMessage, transformationFactory);
+    final String preProcessed = TokenParser.resolvePreProcessTags(processedMessage, transformationFactory);
     context.message(preProcessed);
     // Then, once MiniMessage placeholders have been inserted, we can do the real parse
-    final ElementNode root = TokenParser.parse(transformationFactory, tagNameChecker, preProcessed, context.strict());
+    final RootNode root = TokenParser.parse(transformationFactory, tagNameChecker, preProcessed, processedMessage, context.strict());
 
     if (debug != null) {
       debug.accept("Text parsed into element tree:\n");
@@ -195,8 +205,8 @@ final class MiniMessageParser {
     return root;
   }
 
-  @NotNull Component parseFormat(final @NotNull String richMessage, final @NotNull ContextImpl context) {
-    final ElementNode root = this.parseToTree(richMessage, context);
+  @NotNull Component parseFormat(final @NotNull ContextImpl context) {
+    final ElementNode root = this.parseToTree(context);
     return Objects.requireNonNull(context.postProcessor().apply(this.treeToComponent(root, context)), "Post-processor must not return null");
   }
 
@@ -215,12 +225,7 @@ final class MiniMessageParser {
         final Modifying modTransformation = (Modifying) tag;
 
         // first walk the tree
-        final LinkedList<ElementNode> toVisit = new LinkedList<>(node.unsafeChildren());
-        while (!toVisit.isEmpty()) {
-          final ElementNode curr = toVisit.removeFirst();
-          modTransformation.visit(curr);
-          toVisit.addAll(0, curr.unsafeChildren());
-        }
+        this.visitModifying(modTransformation, tagNode, 0);
         modTransformation.postVisit();
       }
 
@@ -253,6 +258,13 @@ final class MiniMessageParser {
     }
 
     return comp;
+  }
+
+  private void visitModifying(final Modifying modTransformation, final ElementNode node, final int depth) {
+    modTransformation.visit(node, depth);
+    for (final ElementNode child : node.unsafeChildren()) {
+      this.visitModifying(modTransformation, child, depth + 1);
+    }
   }
 
   private Component handleModifying(final Modifying modTransformation, final Component current, final int depth) {

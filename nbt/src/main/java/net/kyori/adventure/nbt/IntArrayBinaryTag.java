@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import java.util.PrimitiveIterator;
 import java.util.Spliterator;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -41,8 +42,22 @@ public interface IntArrayBinaryTag extends ArrayBinaryTag, Iterable<Integer> {
    *
    * @param value the value
    * @return a binary tag
-   * @since 4.0.0
+   * @since 4.14.0
    */
+  static @NotNull IntArrayBinaryTag intArrayBinaryTag(final int@NotNull... value) {
+    return new IntArrayBinaryTagImpl(value);
+  }
+
+  /**
+   * Creates a binary tag holding an {@code int}-array value.
+   *
+   * @param value the value
+   * @return a binary tag
+   * @since 4.0.0
+   * @deprecated for removal since 4.14.0, use {@link #intArrayBinaryTag(int...)} instead.
+   */
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
   static @NotNull IntArrayBinaryTag of(final int@NotNull... value) {
     return new IntArrayBinaryTagImpl(value);
   }

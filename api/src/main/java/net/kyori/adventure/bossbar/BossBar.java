@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 package net.kyori.adventure.bossbar;
 
 import java.util.Set;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.util.Index;
@@ -378,6 +379,43 @@ public interface BossBar extends Examinable {
    */
   @Contract("_ -> this")
   @NotNull BossBar removeListener(final @NotNull Listener listener);
+
+  /**
+   * Gets an unmodifiable view of the viewers of this bossbar.
+   *
+   * <p>The returned value may be empty if this method is unsupported.</p>
+   *
+   * @return an unmodifiable view of the viewers of this bossbar
+   * @since 4.14.0
+   */
+  @UnmodifiableView
+  @NotNull Iterable<? extends BossBarViewer> viewers();
+
+  /**
+   * Show this bossbar to {@code viewer}.
+   *
+   * @param viewer the viewer
+   * @return the bossbar
+   * @see Audience#showBossBar(BossBar)
+   * @since 4.14.0
+   */
+  default @NotNull BossBar addViewer(final @NotNull Audience viewer) {
+    viewer.showBossBar(this);
+    return this;
+  }
+
+  /**
+   * Hide this bossbar from {@code viewer}.
+   *
+   * @param viewer the viewer
+   * @return the bossbar
+   * @see Audience#hideBossBar(BossBar)
+   * @since 4.14.0
+   */
+  default @NotNull BossBar removeViewer(final @NotNull Audience viewer) {
+    viewer.hideBossBar(this);
+    return this;
+  }
 
   /**
    * A listener for changes that happen on a {@link BossBar}.

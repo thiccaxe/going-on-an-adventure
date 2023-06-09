@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -90,8 +90,8 @@ public interface StyleGetter {
   @SuppressWarnings("Duplicates")
   default @Unmodifiable @NotNull Map<TextDecoration, TextDecoration.State> decorations() {
     final Map<TextDecoration, TextDecoration.State> decorations = new EnumMap<>(TextDecoration.class);
-    for (int i = 0, length = StyleImpl.DECORATIONS.length; i < length; i++) {
-      final TextDecoration decoration = StyleImpl.DECORATIONS[i];
+    for (int i = 0, length = DecorationMap.DECORATIONS.length; i < length; i++) {
+      final TextDecoration decoration = DecorationMap.DECORATIONS[i];
       final TextDecoration.State value = this.decoration(decoration);
       decorations.put(decoration, value);
     }

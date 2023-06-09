@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,11 +23,8 @@
  */
 package net.kyori.adventure.nbt;
 
-import java.util.stream.Stream;
-import net.kyori.examination.ExaminableProperty;
-import org.jetbrains.annotations.Debug;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A binary tag holding a {@code long} value.
@@ -40,8 +37,22 @@ public interface LongBinaryTag extends NumberBinaryTag {
    *
    * @param value the value
    * @return a binary tag
-   * @since 4.0.0
+   * @since 4.14.0
    */
+  static @NotNull LongBinaryTag longBinaryTag(final long value) {
+    return new LongBinaryTagImpl(value);
+  }
+
+  /**
+   * Creates a binary tag holding a {@code long} value.
+   *
+   * @param value the value
+   * @return a binary tag
+   * @since 4.0.0
+   * @deprecated for removal since 4.14.0, use {@link #longBinaryTag(long)} instead.
+   */
+  @Deprecated
+  @ApiStatus.ScheduledForRemoval(inVersion = "5.0.0")
   static @NotNull LongBinaryTag of(final long value) {
     return new LongBinaryTagImpl(value);
   }
@@ -58,66 +69,4 @@ public interface LongBinaryTag extends NumberBinaryTag {
    * @since 4.0.0
    */
   long value();
-}
-
-@Debug.Renderer(text = "String.valueOf(this.value) + \"l\"", hasChildren = "false")
-final class LongBinaryTagImpl extends AbstractBinaryTag implements LongBinaryTag {
-  private final long value;
-
-  LongBinaryTagImpl(final long value) {
-    this.value = value;
-  }
-
-  @Override
-  public long value() {
-    return this.value;
-  }
-
-  @Override
-  public byte byteValue() {
-    return (byte) (this.value & 0xff);
-  }
-
-  @Override
-  public double doubleValue() {
-    return (double) this.value;
-  }
-
-  @Override
-  public float floatValue() {
-    return (float) this.value;
-  }
-
-  @Override
-  public int intValue() {
-    return (int) this.value;
-  }
-
-  @Override
-  public long longValue() {
-    return this.value;
-  }
-
-  @Override
-  public short shortValue() {
-    return (short) (this.value & 0xffff);
-  }
-
-  @Override
-  public boolean equals(final @Nullable Object other) {
-    if (this == other) return true;
-    if (other == null || this.getClass() != other.getClass()) return false;
-    final LongBinaryTagImpl that = (LongBinaryTagImpl) other;
-    return this.value == that.value;
-  }
-
-  @Override
-  public int hashCode() {
-    return Long.hashCode(this.value);
-  }
-
-  @Override
-  public @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
-    return Stream.of(ExaminableProperty.of("value", this.value));
-  }
 }

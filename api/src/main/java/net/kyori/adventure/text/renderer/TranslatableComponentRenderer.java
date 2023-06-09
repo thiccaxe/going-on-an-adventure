@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -62,6 +62,9 @@ public abstract class TranslatableComponentRenderer<C> extends AbstractComponent
   /**
    * Creates a {@link TranslatableComponentRenderer} using the {@link Translator} to translate.
    *
+   * <p>Alongside the standard {@link MessageFormat}-based translation, this will also allow the {@link Translator}
+   * to create a {@link Component} {@link Translator#translate(TranslatableComponent, Locale) directly}.</p>
+   *
    * @param source the translation source
    * @return the renderer
    * @since 4.0.0
@@ -73,6 +76,13 @@ public abstract class TranslatableComponentRenderer<C> extends AbstractComponent
       protected @Nullable MessageFormat translate(final @NotNull String key, final @NotNull Locale context) {
         return source.translate(key, context);
       }
+
+      @Override
+      protected @NotNull Component renderTranslatable(final @NotNull TranslatableComponent component, final @NotNull Locale context) {
+        final @Nullable Component translated = source.translate(component, context);
+        if (translated != null) return translated;
+        return super.renderTranslatable(component, context);
+      }
     };
   }
 
@@ -83,33 +93,52 @@ public abstract class TranslatableComponentRenderer<C> extends AbstractComponent
    * @param context a context
    * @return a message format or {@code null} to skip translation
    */
-  protected abstract @Nullable MessageFormat translate(final @NotNull String key, final @NotNull C context);
+  protected @Nullable MessageFormat translate(final @NotNull String key, final @NotNull C context) {
+    return null;
+  }
+
+  /**
+   * Gets a message format from a key, fallback string, and context.
+   *
+   * @param key a translation key
+   * @param fallback the fallback string
+   * @param context a context
+   * @return a message format or {@code null} to skip translation
+   */
+  protected @Nullable MessageFormat translate(final @NotNull String key, final @Nullable String fallback, final @NotNull C context) {
+    return this.translate(key, context);
+  }
 
   @Override
   protected @NotNull Component renderBlockNbt(final @NotNull BlockNBTComponent component, final @NotNull C context) {
-    final BlockNBTComponent.Builder builder = nbt(Component.blockNBT(), component)
+    final BlockNBTComponent.Builder builder = this.nbt(context, Component.blockNBT(), component)
       .pos(component.pos());
     return this.mergeStyleAndOptionallyDeepRender(component, builder, context);
   }
 
   @Override
   protected @NotNull Component renderEntityNbt(final @NotNull EntityNBTComponent component, final @NotNull C context) {
-    final EntityNBTComponent.Builder builder = nbt(Component.entityNBT(), component)
+    final EntityNBTComponent.Builder builder = this.nbt(context, Component.entityNBT(), component)
       .selector(component.selector());
     return this.mergeStyleAndOptionallyDeepRender(component, builder, context);
   }
 
   @Override
   protected @NotNull Component renderStorageNbt(final @NotNull StorageNBTComponent component, final @NotNull C context) {
-    final StorageNBTComponent.Builder builder = nbt(Component.storageNBT(), component)
+    final StorageNBTComponent.Builder builder = this.nbt(context, Component.storageNBT(), component)
       .storage(component.storage());
     return this.mergeStyleAndOptionallyDeepRender(component, builder, context);
   }
 
-  protected static <C extends NBTComponent<C, B>, B extends NBTComponentBuilder<C, B>> B nbt(final B builder, final C oldComponent) {
-    return builder
+  protected <O extends NBTComponent<O, B>, B extends NBTComponentBuilder<O, B>> B nbt(final @NotNull C context, final B builder, final O oldComponent) {
+    builder
       .nbtPath(oldComponent.nbtPath())
       .interpret(oldComponent.interpret());
+    final @Nullable Component separator = oldComponent.separator();
+    if (separator != null) {
+      builder.separator(this.render(separator, context));
+    }
+    return builder;
   }
 
   @Override
@@ -141,14 +170,15 @@ public abstract class TranslatableComponentRenderer<C> extends AbstractComponent
   }
 
   @Override
+  @SuppressWarnings("JdkObsolete") // MessageFormat requires StringBuffer in its api
   protected @NotNull Component renderTranslatable(final @NotNull TranslatableComponent component, final @NotNull C context) {
-    final @Nullable MessageFormat format = this.translate(component.key(), context);
+    final @Nullable MessageFormat format = this.translate(component.key(), component.fallback(), context);
     if (format == null) {
       // we don't have a translation for this component, but the arguments or children
       // of this component might need additional rendering
 
       final TranslatableComponent.Builder builder = Component.translatable()
-        .key(component.key());
+        .key(component.key()).fallback(component.fallback());
       if (!component.args().isEmpty()) {
         final List<Component> args = new ArrayList<>(component.args());
         for (int i = 0, size = args.size(); i < size; i++) {

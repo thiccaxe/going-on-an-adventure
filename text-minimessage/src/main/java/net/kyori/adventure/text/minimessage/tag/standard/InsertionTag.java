@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,18 +23,29 @@
  */
 package net.kyori.adventure.text.minimessage.tag.standard;
 
+import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.minimessage.Context;
 import net.kyori.adventure.text.minimessage.ParsingException;
+import net.kyori.adventure.text.minimessage.internal.serializer.SerializableResolver;
+import net.kyori.adventure.text.minimessage.internal.serializer.StyleClaim;
+import net.kyori.adventure.text.minimessage.internal.serializer.TokenEmitter;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
 /**
  * A transformation that applies an insertion (shift-click) event.
  *
  * @since 4.10.0
  */
-public final class InsertionTag {
-  public static final String INSERTION = "insert";
+final class InsertionTag {
+  private static final String INSERTION = "insert";
+
+  static final TagResolver RESOLVER = SerializableResolver.claimingStyle(
+    INSERTION,
+    InsertionTag::create,
+    StyleClaim.claim(INSERTION, Style::insertion, InsertionTag::emit)
+  );
 
   private InsertionTag() {
   }
@@ -42,5 +53,9 @@ public final class InsertionTag {
   static Tag create(final ArgumentQueue args, final Context ctx) throws ParsingException {
     final String insertion = args.popOr("A value is required to produce an insertion component").value();
     return Tag.styling(b -> b.insertion(insertion));
+  }
+
+  static void emit(final String insertion, final TokenEmitter emitter) {
+    emitter.tag(INSERTION).argument(insertion);
   }
 }

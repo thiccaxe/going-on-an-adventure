@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
  * @param <R> the serialized type
  * @since 4.0.0
  */
-public interface ComponentSerializer<I extends Component, O extends Component, R> {
+public interface ComponentSerializer<I extends Component, O extends Component, R> extends ComponentEncoder<I, R> {
   /**
    * Deserialize a component from input of type {@code R}.
    *
@@ -102,6 +102,7 @@ public interface ComponentSerializer<I extends Component, O extends Component, R
    * @return the output
    * @since 4.0.0
    */
+  @Override
   @NotNull R serialize(final @NotNull I component);
 
   /**
@@ -113,6 +114,7 @@ public interface ComponentSerializer<I extends Component, O extends Component, R
    * @return the output if {@code component} is non-null, otherwise {@code null}
    * @since 4.7.0
    */
+  @Override
   @Contract(value = "!null -> !null; null -> null", pure = true)
   default @Nullable R serializeOrNull(final @Nullable I component) {
     return this.serializeOr(component, null);
@@ -128,6 +130,7 @@ public interface ComponentSerializer<I extends Component, O extends Component, R
    * @return the output if {@code component} is non-null, otherwise {@code fallback}
    * @since 4.7.0
    */
+  @Override
   @Contract(value = "!null, _ -> !null; null, _ -> param2", pure = true)
   default @Nullable R serializeOr(final @Nullable I component, final @Nullable R fallback) {
     if (component == null) return fallback;

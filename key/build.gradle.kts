@@ -4,15 +4,15 @@ plugins {
 
 configurations {
   testCompileOnly {
-    extendsFrom(compileOnlyApi.forUseAtConfigurationTime().get())
+    extendsFrom(compileOnlyApi.get())
   }
 }
 
 dependencies {
-  api("net.kyori:examination-api:1.3.0")
-  api("net.kyori:examination-string:1.3.0")
-  compileOnlyApi("org.jetbrains:annotations:23.0.0")
-  testImplementation("com.google.guava:guava:31.0.1-jre")
+  api(libs.examination.api)
+  api(libs.examination.string)
+  compileOnlyApi(libs.jetbrainsAnnotations)
+  testImplementation(libs.guava)
 }
 
 applyJarMetadata("net.kyori.adventure.key")

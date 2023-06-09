@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,52 +23,55 @@
  */
 package net.kyori.adventure.key;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.function.IntPredicate;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 import net.kyori.examination.ExaminableProperty;
+import org.intellij.lang.annotations.RegExp;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.VisibleForTesting;
 
 import static java.util.Objects.requireNonNull;
 
 final class KeyImpl implements Key {
   static final Comparator<? super Key> COMPARATOR = Comparator.comparing(Key::value).thenComparing(Key::namespace);
 
-  static final String NAMESPACE_PATTERN = "[a-z0-9_\\-.]+";
-  static final String VALUE_PATTERN = "[a-z0-9_\\-./]+";
+  static final @RegExp String NAMESPACE_PATTERN = "[a-z0-9_\\-.]+";
+  static final @RegExp String VALUE_PATTERN = "[a-z0-9_\\-./]+";
 
-  private static final IntPredicate NAMESPACE_PREDICATE = value -> value == '_' || value == '-' || (value >= 'a' && value <= 'z') || (value >= '0' && value <= '9') || value == '.';
-  private static final IntPredicate VALUE_PREDICATE = value -> value == '_' || value == '-' || (value >= 'a' && value <= 'z') || (value >= '0' && value <= '9') || value == '/' || value == '.';
   private final String namespace;
   private final String value;
 
   KeyImpl(final @NotNull String namespace, final @NotNull String value) {
-    if (!namespaceValid(namespace)) throw new InvalidKeyException(namespace, value, String.format("Non [a-z0-9_.-] character in namespace of Key[%s]", asString(namespace, value)));
-    if (!valueValid(value)) throw new InvalidKeyException(namespace, value, String.format("Non [a-z0-9/._-] character in value of Key[%s]", asString(namespace, value)));
+    checkError("namespace", namespace, value, Key.checkNamespace(namespace));
+    checkError("value", namespace, value, Key.checkValue(value));
     this.namespace = requireNonNull(namespace, "namespace");
     this.value = requireNonNull(value, "value");
   }
 
-  @VisibleForTesting
-  static boolean namespaceValid(final @NotNull String namespace) {
-    for (int i = 0, length = namespace.length(); i < length; i++) {
-      if (!NAMESPACE_PREDICATE.test(namespace.charAt(i))) {
-        return false;
-      }
+  private static void checkError(final String name, final String namespace, final String value, final OptionalInt index) {
+    if (index.isPresent()) {
+      final int indexValue = index.getAsInt();
+      final char character = value.charAt(indexValue);
+      throw new InvalidKeyException(namespace, value, String.format(
+        "Non [a-z0-9_.-] character in %s of Key[%s] at index %d ('%s', bytes: %s)",
+        name,
+        asString(namespace, value),
+        indexValue,
+        character,
+        Arrays.toString(String.valueOf(character).getBytes(StandardCharsets.UTF_8))
+      ));
     }
-    return true;
   }
 
-  @VisibleForTesting
-  static boolean valueValid(final @NotNull String value) {
-    for (int i = 0, length = value.length(); i < length; i++) {
-      if (!VALUE_PREDICATE.test(value.charAt(i))) {
-        return false;
-      }
-    }
-    return true;
+  static boolean allowedInNamespace(final char character) {
+    return character == '_' || character == '-' || (character >= 'a' && character <= 'z') || (character >= '0' && character <= '9') || character == '.';
+  }
+
+  static boolean allowedInValue(final char character) {
+    return character == '_' || character == '-' || (character >= 'a' && character <= 'z') || (character >= '0' && character <= '9') || character == '.' || character == '/';
   }
 
   @Override

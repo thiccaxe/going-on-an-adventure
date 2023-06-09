@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,14 +40,14 @@ final class BinaryTagWriterImpl implements BinaryTagIO.Writer {
 
   @Override
   public void write(final @NotNull CompoundBinaryTag tag, final @NotNull Path path, final BinaryTagIO.@NotNull Compression compression) throws IOException {
-    try(final OutputStream os = Files.newOutputStream(path)) {
+    try (final OutputStream os = Files.newOutputStream(path)) {
       this.write(tag, os, compression);
     }
   }
 
   @Override
   public void write(final @NotNull CompoundBinaryTag tag, final @NotNull OutputStream output, final BinaryTagIO.@NotNull Compression compression) throws IOException {
-    try(final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(compression.compress(closeShield(output))))) {
+    try (final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(compression.compress(closeShield(output))))) {
       this.write(tag, (DataOutput) dos);
     }
   }
@@ -61,14 +61,14 @@ final class BinaryTagWriterImpl implements BinaryTagIO.Writer {
 
   @Override
   public void writeNamed(final Map.@NotNull Entry<String, CompoundBinaryTag> tag, final @NotNull Path path, final BinaryTagIO.@NotNull Compression compression) throws IOException {
-    try(final OutputStream os = Files.newOutputStream(path)) {
+    try (final OutputStream os = Files.newOutputStream(path)) {
       this.writeNamed(tag, os, compression);
     }
   }
 
   @Override
   public void writeNamed(final Map.@NotNull Entry<String, CompoundBinaryTag> tag, final @NotNull OutputStream output, final BinaryTagIO.@NotNull Compression compression) throws IOException {
-    try(final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(compression.compress(closeShield(output))))) {
+    try (final DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(compression.compress(closeShield(output))))) {
       this.writeNamed(tag, (DataOutput) dos);
     }
   }

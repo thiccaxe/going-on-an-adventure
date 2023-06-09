@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MiniMessageTest extends TestBase {
+public class MiniMessageTest extends AbstractTest {
 
   @Test
   void testNormalBuilder() {
@@ -120,6 +120,15 @@ public class MiniMessageTest extends TestBase {
     final TagResolver t2 = Placeholder.parsed("test2", "Test2");
 
     this.assertParsedEquals(miniMessage, expected, input, t1, t2);
+  }
+
+  @Test
+  void testPreprocessing() {
+    final Component expected = MiniMessage.miniMessage().deserialize("<red>Hello, world!</red>");
+
+    final String input = "Hello";
+    final MiniMessage miniMessage = MiniMessage.builder().preProcessor(str -> "<red>" + str + ", world!</red>").build();
+    this.assertParsedEquals(miniMessage, expected, input);
   }
 
   // GH-103
@@ -200,7 +209,7 @@ public class MiniMessageTest extends TestBase {
     final Component expected = text("A")
       .append(text("B"))
       .append(text("C"));
-    final String input = "<a><b><_c>";
+    final String input = "<a><b><!c>";
     final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     this.assertParsedEquals(
@@ -209,7 +218,7 @@ public class MiniMessageTest extends TestBase {
       input,
       component("a", text("A")),
       component("b", text("B")),
-      component("_c", text("C"))
+      component("!c", text("C"))
     );
   }
 

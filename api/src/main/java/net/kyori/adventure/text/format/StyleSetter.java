@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -124,6 +124,16 @@ public interface StyleSetter<T extends StyleSetter<?>> {
    * @since 4.10.0
    */
   @NotNull T decoration(final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state);
+
+  /**
+   * Sets the state of a decoration to {@code state} if the current state of the decoration is {@link TextDecoration.State#NOT_SET}.
+   *
+   * @param decoration the decoration
+   * @param state the state
+   * @return an object ({@code T})
+   * @since 4.12.0
+   */
+  @NotNull T decorationIfAbsent(final @NotNull TextDecoration decoration, final TextDecoration.@NotNull State state);
 
   /**
    * Sets decorations using the specified {@code decorations} map.

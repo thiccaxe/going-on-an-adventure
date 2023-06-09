@@ -3,7 +3,8 @@ plugins {
 }
 
 dependencies {
-  api(project(":adventure-api"))
+  api(projects.adventureApi)
+  annotationProcessor(projects.adventureAnnotationProcessors)
 }
 
 applyJarMetadata("net.kyori.adventure.text.serializer.legacy")

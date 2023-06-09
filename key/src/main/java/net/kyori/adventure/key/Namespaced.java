@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@
  */
 package net.kyori.adventure.key;
 
-import org.intellij.lang.annotations.Pattern;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -38,5 +37,5 @@ public interface Namespaced {
    * @return the namespace
    * @since 4.4.0
    */
-  @NotNull @Pattern(KeyImpl.NAMESPACE_PATTERN) String namespace();
+  @NotNull @KeyPattern.Namespace String namespace();
 }

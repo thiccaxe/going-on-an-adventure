@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -68,5 +68,57 @@ public final class Services {
       return Optional.of(instance);
     }
     return Optional.empty();
+  }
+
+  /**
+   * A fallback service.
+   *
+   * <p>When used in tandem with {@link #serviceWithFallback(Class)}, classes that implement this interface
+   * will be ignored in favour of classes that do not implement this interface.</p>
+   *
+   * @since 4.14.0
+   */
+  public interface Fallback {
+  }
+
+  /**
+   * Locates a service.
+   *
+   * <p>If multiple services of this type exist, the first non-fallback service will be returned.</p>
+   *
+   * @param type the service type
+   * @param <P> the service type
+   * @return a service, or {@link Optional#empty()}
+   * @see Fallback
+   * @since 4.14.0
+   */
+  public static <P> @NotNull Optional<P> serviceWithFallback(final @NotNull Class<P> type) {
+    final ServiceLoader<P> loader = Services0.loader(type);
+    final Iterator<P> it = loader.iterator();
+    P firstFallback = null;
+
+    while (it.hasNext()) {
+      final P instance;
+
+      try {
+        instance = it.next();
+      } catch (final Throwable t) {
+        if (SERVICE_LOAD_FAILURES_ARE_FATAL) {
+          throw new IllegalStateException("Encountered an exception loading service " + type, t);
+        } else {
+          continue;
+        }
+      }
+
+      if (instance instanceof Fallback) {
+        if (firstFallback == null) {
+          firstFallback = instance;
+        }
+      } else {
+        return Optional.of(instance);
+      }
+    }
+
+    return Optional.ofNullable(firstFallback);
   }
 }

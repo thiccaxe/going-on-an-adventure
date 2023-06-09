@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -46,6 +46,17 @@ import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.Codec;
 import org.jetbrains.annotations.Nullable;
 
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.CLICK_EVENT;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.CLICK_EVENT_ACTION;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.CLICK_EVENT_VALUE;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.COLOR;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.FONT;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.HOVER_EVENT;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.HOVER_EVENT_ACTION;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.HOVER_EVENT_CONTENTS;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.HOVER_EVENT_VALUE;
+import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.INSERTION;
+
 final class StyleSerializer extends TypeAdapter<Style> {
   @SuppressWarnings("checkstyle:NoWhitespaceAfter")
   private static final TextDecoration[] DECORATIONS = {
@@ -69,26 +80,15 @@ final class StyleSerializer extends TypeAdapter<Style> {
     }
   }
 
-  static final String FONT = "font";
-  static final String COLOR = "color";
-  static final String INSERTION = "insertion";
-  static final String CLICK_EVENT = "clickEvent";
-  static final String CLICK_EVENT_ACTION = "action";
-  static final String CLICK_EVENT_VALUE = "value";
-  static final String HOVER_EVENT = "hoverEvent";
-  static final String HOVER_EVENT_ACTION = "action";
-  static final String HOVER_EVENT_CONTENTS = "contents";
-  static final @Deprecated String HOVER_EVENT_VALUE = "value";
-
-  static TypeAdapter<Style> create(final @Nullable LegacyHoverEventSerializer legacyHover, final boolean emitLegacyHover, final Gson gson) {
+  static TypeAdapter<Style> create(final net.kyori.adventure.text.serializer.json.@Nullable LegacyHoverEventSerializer legacyHover, final boolean emitLegacyHover, final Gson gson) {
     return new StyleSerializer(legacyHover, emitLegacyHover, gson).nullSafe();
   }
 
-  private final LegacyHoverEventSerializer legacyHover;
+  private final net.kyori.adventure.text.serializer.json.LegacyHoverEventSerializer legacyHover;
   private final boolean emitLegacyHover;
   private final Gson gson;
 
-  private StyleSerializer(final @Nullable LegacyHoverEventSerializer legacyHover, final boolean emitLegacyHover, final Gson gson) {
+  private StyleSerializer(final net.kyori.adventure.text.serializer.json.@Nullable LegacyHoverEventSerializer legacyHover, final boolean emitLegacyHover, final Gson gson) {
     this.legacyHover = legacyHover;
     this.emitLegacyHover = emitLegacyHover;
     this.gson = gson;
@@ -144,10 +144,12 @@ final class StyleSerializer extends TypeAdapter<Style> {
           final HoverEvent.Action<Object> action = this.gson.fromJson(serializedAction, SerializerFactory.HOVER_ACTION_TYPE);
           if (action.readable()) {
             final @Nullable Object value;
+            final Class<?> actionType = action.type();
             if (hoverEventObject.has(HOVER_EVENT_CONTENTS)) {
               final @Nullable JsonElement rawValue = hoverEventObject.get(HOVER_EVENT_CONTENTS);
-              final Class<?> actionType = action.type();
-              if (SerializerFactory.COMPONENT_TYPE.isAssignableFrom(actionType)) {
+              if (isNullOrEmpty(rawValue)) {
+                value = null;
+              } else if (SerializerFactory.COMPONENT_TYPE.isAssignableFrom(actionType)) {
                 value = this.gson.fromJson(rawValue, SerializerFactory.COMPONENT_TYPE);
               } else if (SerializerFactory.SHOW_ITEM_TYPE.isAssignableFrom(actionType)) {
                 value = this.gson.fromJson(rawValue, SerializerFactory.SHOW_ITEM_TYPE);
@@ -157,8 +159,17 @@ final class StyleSerializer extends TypeAdapter<Style> {
                 value = null;
               }
             } else if (hoverEventObject.has(HOVER_EVENT_VALUE)) {
-              final Component rawValue = this.gson.fromJson(hoverEventObject.get(HOVER_EVENT_VALUE), SerializerFactory.COMPONENT_TYPE);
-              value = this.legacyHoverEventContents(action, rawValue);
+              final JsonElement element = hoverEventObject.get(HOVER_EVENT_VALUE);
+              if (isNullOrEmpty(element)) {
+                value = null;
+              } else if (SerializerFactory.COMPONENT_TYPE.isAssignableFrom(actionType)) {
+                final Component rawValue = this.gson.fromJson(element, SerializerFactory.COMPONENT_TYPE);
+                value = this.legacyHoverEventContents(action, rawValue);
+              } else if (SerializerFactory.STRING_TYPE.isAssignableFrom(actionType)) {
+                value = this.gson.fromJson(element, SerializerFactory.STRING_TYPE);
+              } else {
+                value = null;
+              }
             } else {
               value = null;
             }
@@ -175,6 +186,10 @@ final class StyleSerializer extends TypeAdapter<Style> {
 
     in.endObject();
     return style.build();
+  }
+
+  private static boolean isNullOrEmpty(final @Nullable JsonElement element) {
+    return element == null || element.isJsonNull() || (element.isJsonArray() && element.getAsJsonArray().size() == 0) || (element.isJsonObject() && element.getAsJsonObject().size() == 0);
   }
 
   private boolean readBoolean(final JsonReader in) throws IOException {
@@ -253,21 +268,23 @@ final class StyleSerializer extends TypeAdapter<Style> {
     }
 
     final @Nullable HoverEvent<?> hoverEvent = value.hoverEvent();
-    if (hoverEvent != null) {
+    if (hoverEvent != null && (hoverEvent.action() != HoverEvent.Action.SHOW_ACHIEVEMENT || this.emitLegacyHover)) {
       out.name(HOVER_EVENT);
       out.beginObject();
       out.name(HOVER_EVENT_ACTION);
       final HoverEvent.Action<?> action = hoverEvent.action();
       this.gson.toJson(action, SerializerFactory.HOVER_ACTION_TYPE, out);
-      out.name(HOVER_EVENT_CONTENTS);
-      if (action == HoverEvent.Action.SHOW_ITEM) {
-        this.gson.toJson(hoverEvent.value(), SerializerFactory.SHOW_ITEM_TYPE, out);
-      } else if (action == HoverEvent.Action.SHOW_ENTITY) {
-        this.gson.toJson(hoverEvent.value(), SerializerFactory.SHOW_ENTITY_TYPE, out);
-      } else if (action == HoverEvent.Action.SHOW_TEXT) {
-        this.gson.toJson(hoverEvent.value(), SerializerFactory.COMPONENT_TYPE, out);
-      } else {
-        throw new JsonParseException("Don't know how to serialize " + hoverEvent.value());
+      if (action != HoverEvent.Action.SHOW_ACHIEVEMENT) { // legacy action has no modern contents value
+        out.name(HOVER_EVENT_CONTENTS);
+        if (action == HoverEvent.Action.SHOW_ITEM) {
+          this.gson.toJson(hoverEvent.value(), SerializerFactory.SHOW_ITEM_TYPE, out);
+        } else if (action == HoverEvent.Action.SHOW_ENTITY) {
+          this.gson.toJson(hoverEvent.value(), SerializerFactory.SHOW_ENTITY_TYPE, out);
+        } else if (action == HoverEvent.Action.SHOW_TEXT) {
+          this.gson.toJson(hoverEvent.value(), SerializerFactory.COMPONENT_TYPE, out);
+        } else {
+          throw new JsonParseException("Don't know how to serialize " + hoverEvent.value());
+        }
       }
       if (this.emitLegacyHover) {
         out.name(HOVER_EVENT_VALUE);
@@ -289,6 +306,8 @@ final class StyleSerializer extends TypeAdapter<Style> {
   private void serializeLegacyHoverEvent(final HoverEvent<?> hoverEvent, final JsonWriter out) throws IOException {
     if (hoverEvent.action() == HoverEvent.Action.SHOW_TEXT) { // serialization is the same
       this.gson.toJson(hoverEvent.value(), SerializerFactory.COMPONENT_TYPE, out);
+    } else if (hoverEvent.action() == HoverEvent.Action.SHOW_ACHIEVEMENT) {
+      this.gson.toJson(hoverEvent.value(), String.class, out);
     } else if (this.legacyHover != null) { // for data formats that require knowledge of SNBT
       Component serialized = null;
       try {

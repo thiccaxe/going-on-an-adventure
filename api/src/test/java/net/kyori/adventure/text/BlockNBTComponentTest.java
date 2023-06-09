@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -113,6 +113,22 @@ class BlockNBTComponentTest extends AbstractNBTComponentTest<BlockNBTComponent, 
     assertEquals(
       BlockNBTComponent.WorldPos.worldPos(BlockNBTComponent.WorldPos.Coordinate.absolute(12), BlockNBTComponent.WorldPos.Coordinate.relative(3), BlockNBTComponent.WorldPos.Coordinate.absolute(1200)),
       BlockNBTComponent.Pos.fromString("12 ~3 1200")
+    );
+  }
+
+  @Test
+  void testLocalPosParsingWithNegatives() {
+    assertEquals(
+      BlockNBTComponent.LocalPos.localPos(-4.5, 3, -35.67),
+      BlockNBTComponent.Pos.fromString("^-4.5 ^3 ^-35.67")
+    );
+  }
+
+  @Test
+  void testWorldPosParsingWithNegatives() {
+    assertEquals(
+      BlockNBTComponent.WorldPos.worldPos(BlockNBTComponent.WorldPos.Coordinate.relative(-6), BlockNBTComponent.WorldPos.Coordinate.absolute(-34), BlockNBTComponent.WorldPos.Coordinate.relative(13)),
+      BlockNBTComponent.Pos.fromString("~-6 -34 ~13")
     );
   }
 }

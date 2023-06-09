@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -137,7 +137,7 @@ final class TitleImpl implements Title {
     @Override
     public boolean equals(final @Nullable Object other) {
       if (this == other) return true;
-      if (other == null || this.getClass() != other.getClass()) return false;
+      if (!(other instanceof TimesImpl)) return false;
       final TimesImpl that = (TimesImpl) other;
       return this.fadeIn.equals(that.fadeIn)
         && this.stay.equals(that.stay)

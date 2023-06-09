@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ package net.kyori.adventure.text.minimessage;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -38,14 +39,35 @@ import org.jetbrains.annotations.Nullable;
  */
 @ApiStatus.NonExtendable
 public interface Context {
+
   /**
-   * Parses a MiniMessage string using all the settings of this context.
+   * Deserializes a MiniMessage string using all the settings of this context.
    *
    * @param message the message to parse
    * @return the parsed message
    * @since 4.10.0
    */
-  @NotNull Component parse(final @NotNull String message);
+  @NotNull Component deserialize(final @NotNull String message);
+
+  /**
+   * Deserializes a MiniMessage string using all the settings of this context.
+   *
+   * @param message the message to parse
+   * @param resolver additional tag resolver, added to all other resolvers in this parse, but taking priority in the event of a name overlap
+   * @return the parsed message
+   * @since 4.10.0
+   */
+  @NotNull Component deserialize(final @NotNull String message, final @NotNull TagResolver resolver);
+
+  /**
+   * Deserializes a MiniMessage string using all the settings of this context.
+   *
+   * @param message the message to parse
+   * @param resolvers additional tag resolvers, added to all other resolvers in this parse, but taking priority in the event of a name overlap
+   * @return the parsed message
+   * @since 4.10.0
+   */
+  @NotNull Component deserialize(final @NotNull String message, final @NotNull TagResolver@NotNull... resolvers);
 
   /**
    * Create a new parsing exception.

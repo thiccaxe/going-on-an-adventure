@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,6 +55,7 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
   static final String TEXT = "text";
   static final String TRANSLATE = "translate";
   static final String TRANSLATE_WITH = "with";
+  static final String TRANSLATE_FALLBACK = "fallback";
   static final String SCORE = "score";
   static final String SCORE_NAME = "name";
   static final String SCORE_OBJECTIVE = "objective";
@@ -78,10 +79,10 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
 
   @Override
   public @NotNull Component deserialize(final @NotNull TypeToken<?> type, final @NotNull ConfigurationNode value) throws ObjectMappingException {
-    return this.deserialize0(type, value);
+    return this.deserialize0(value);
   }
 
-  private @NotNull BuildableComponent<?, ?> deserialize0(final @NotNull TypeToken<?> type, final @NotNull ConfigurationNode value) throws ObjectMappingException {
+  private @NotNull BuildableComponent<?, ?> deserialize0(final @NotNull ConfigurationNode value) throws ObjectMappingException {
     // Try to read as a string
     if (!value.isList() && !value.isMap()) {
       final String str = value.getString();
@@ -99,7 +100,7 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
     } else if (value.isList()) {
       ComponentBuilder<?, ?> parent = null;
       for (final ConfigurationNode childElement : value.getChildrenList()) {
-        final BuildableComponent<?, ?> child = this.deserialize0(TYPE, childElement);
+        final BuildableComponent<?, ?> child = this.deserialize0(childElement);
         if (parent == null) {
           parent = child.toBuilder();
         } else {
@@ -119,17 +120,22 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
     if (children.containsKey(TEXT)) {
       component = Component.text().content(children.get(TEXT).getString());
     } else if (children.containsKey(TRANSLATE)) {
+      final TranslatableComponent.Builder builder;
       final String key = children.get(TRANSLATE).getString();
       if (!children.containsKey(TRANSLATE_WITH)) {
-        component = Component.translatable().key(key);
+        builder = Component.translatable().key(key);
       } else {
         final ConfigurationNode with = children.get(TRANSLATE_WITH);
         if (!with.isList()) {
           throw new ObjectMappingException("Expected " + TRANSLATE_WITH + " to be a list");
         }
         final List<Component> args = with.getValue(LIST_TYPE);
-        component = Component.translatable().key(key).args(args);
+        builder = Component.translatable().key(key).args(args);
       }
+      if (children.containsKey(TRANSLATE_FALLBACK)) {
+        builder.fallback(children.get(TRANSLATE_FALLBACK).getString());
+      }
+      component = builder;
     } else if (children.containsKey(SCORE)) {
       final ConfigurationNode score = children.get(SCORE);
       final ConfigurationNode name = score.getNode(SCORE_NAME);
@@ -171,7 +177,7 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
     if (children.containsKey(EXTRA)) {
       final ConfigurationNode extra = children.get(EXTRA);
       for (final ConfigurationNode child : extra.getChildrenList()) {
-        component.append(this.deserialize0(TYPE, child));
+        component.append(this.deserialize0(child));
       }
     }
 
@@ -207,6 +213,7 @@ final class ComponentTypeSerializer implements TypeSerializer<Component> {
           with.appendListNode().setValue(TYPE, arg);
         }
       }
+      value.getNode(TRANSLATE_FALLBACK).setValue(tc.fallback());
     } else if (src instanceof ScoreComponent) {
       final ScoreComponent sc = (ScoreComponent) src;
       final ConfigurationNode score = value.getNode(SCORE);

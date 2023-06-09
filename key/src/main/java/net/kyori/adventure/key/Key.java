@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,12 @@
 package net.kyori.adventure.key;
 
 import java.util.Comparator;
+import java.util.OptionalInt;
 import java.util.stream.Stream;
 import net.kyori.examination.Examinable;
 import net.kyori.examination.ExaminableProperty;
-import org.intellij.lang.annotations.Pattern;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * An identifying object used to fetch and/or store unique objects.
@@ -55,13 +56,19 @@ import org.jetbrains.annotations.NotNull;
  *
  * @since 4.0.0
  */
-public interface Key extends Comparable<Key>, Examinable, Namespaced {
+public interface Key extends Comparable<Key>, Examinable, Namespaced, Keyed {
   /**
    * The namespace for Minecraft.
    *
    * @since 4.0.0
    */
   String MINECRAFT_NAMESPACE = "minecraft";
+  /**
+   * The default namespace and value separator.
+   *
+   * @since 4.12.0
+   */
+  char DEFAULT_SEPARATOR = ':';
 
   /**
    * Creates a key.
@@ -77,8 +84,8 @@ public interface Key extends Comparable<Key>, Examinable, Namespaced {
    * @throws InvalidKeyException if the namespace or value contains an invalid character
    * @since 4.0.0
    */
-  static @NotNull Key key(final @NotNull @Pattern("(" + KeyImpl.NAMESPACE_PATTERN + ":)?" + KeyImpl.VALUE_PATTERN) String string) {
-    return key(string, ':');
+  static @NotNull Key key(final @NotNull @KeyPattern String string) {
+    return key(string, DEFAULT_SEPARATOR);
   }
 
   /**
@@ -113,7 +120,7 @@ public interface Key extends Comparable<Key>, Examinable, Namespaced {
    * @throws InvalidKeyException if the namespace or value contains an invalid character
    * @since 4.4.0
    */
-  static @NotNull Key key(final @NotNull Namespaced namespaced, final @NotNull @Pattern(KeyImpl.VALUE_PATTERN) String value) {
+  static @NotNull Key key(final @NotNull Namespaced namespaced, final @NotNull @KeyPattern.Value String value) {
     return key(namespaced.namespace(), value);
   }
 
@@ -126,7 +133,7 @@ public interface Key extends Comparable<Key>, Examinable, Namespaced {
    * @throws InvalidKeyException if the namespace or value contains an invalid character
    * @since 4.0.0
    */
-  static @NotNull Key key(final @NotNull @Pattern(KeyImpl.NAMESPACE_PATTERN) String namespace, final @NotNull @Pattern(KeyImpl.VALUE_PATTERN) String value) {
+  static @NotNull Key key(final @NotNull @KeyPattern.Namespace String namespace, final @NotNull @KeyPattern.Value String value) {
     return new KeyImpl(namespace, value);
   }
 
@@ -143,12 +150,106 @@ public interface Key extends Comparable<Key>, Examinable, Namespaced {
   }
 
   /**
+   * Checks if {@code string} can be parsed into a {@link Key}.
+   *
+   * @param string the input string
+   * @return {@code true} if {@code string} can be parsed into a {@link Key}, {@code false} otherwise
+   * @since 4.12.0
+   */
+  static boolean parseable(final @Nullable String string) {
+    if (string == null) {
+      return false;
+    }
+    final int index = string.indexOf(DEFAULT_SEPARATOR);
+    final String namespace = index >= 1 ? string.substring(0, index) : MINECRAFT_NAMESPACE;
+    final String value = index >= 0 ? string.substring(index + 1) : string;
+    return parseableNamespace(namespace) && parseableValue(value);
+  }
+
+  /**
+   * Checks if {@code value} is a valid namespace.
+   *
+   * @param namespace the string to check
+   * @return {@code true} if {@code value} is a valid namespace, {@code false} otherwise
+   * @since 4.12.0
+   */
+  static boolean parseableNamespace(final @NotNull String namespace) {
+    return !checkNamespace(namespace).isPresent();
+  }
+
+  /**
+   * Checks if {@code value} is a valid namespace.
+   *
+   * @param namespace the string to check
+   * @return {@link OptionalInt#empty()} if {@code value} is a valid namespace, otherwise an {@code OptionalInt} containing the index of an invalid character
+   * @since 4.14.0
+   */
+  static @NotNull OptionalInt checkNamespace(final @NotNull String namespace) {
+    for (int i = 0, length = namespace.length(); i < length; i++) {
+      if (!allowedInNamespace(namespace.charAt(i))) {
+        return OptionalInt.of(i);
+      }
+    }
+    return OptionalInt.empty();
+  }
+
+  /**
+   * Checks if {@code value} is a valid value.
+   *
+   * @param value the string to check
+   * @return {@code true} if {@code value} is a valid value, {@code false} otherwise
+   * @since 4.12.0
+   */
+  static boolean parseableValue(final @NotNull String value) {
+    return !checkValue(value).isPresent();
+  }
+
+  /**
+   * Checks if {@code value} is a valid value.
+   *
+   * @param value the string to check
+   * @return {@link OptionalInt#empty()} if {@code value} is a valid value, otherwise an {@code OptionalInt} containing the index of an invalid character
+   * @since 4.14.0
+   */
+  static @NotNull OptionalInt checkValue(final @NotNull String value) {
+    for (int i = 0, length = value.length(); i < length; i++) {
+      if (!allowedInValue(value.charAt(i))) {
+        return OptionalInt.of(i);
+      }
+    }
+    return OptionalInt.empty();
+  }
+
+  /**
+   * Checks if {@code value} is a valid character in a namespace.
+   *
+   * @param character the character to check
+   * @return {@code true} if {@code value} is a valid character in a namespace, {@code false} otherwise
+   * @since 4.12.0
+   */
+  static boolean allowedInNamespace(final char character) {
+    return KeyImpl.allowedInNamespace(character);
+  }
+
+  /**
+   * Checks if {@code value} is a valid character in a value.
+   *
+   * @param character the character to check
+   * @return {@code true} if {@code value} is a valid character in a value, {@code false} otherwise
+   * @since 4.12.0
+   */
+  static boolean allowedInValue(final char character) {
+    return KeyImpl.allowedInValue(character);
+  }
+
+  /**
    * Gets the namespace.
    *
    * @return the namespace
    * @since 4.0.0
    */
-  @NotNull String namespace();
+  @Override
+  @NotNull @KeyPattern.Namespace String namespace();
 
   /**
    * Gets the value.
@@ -156,7 +257,7 @@ public interface Key extends Comparable<Key>, Examinable, Namespaced {
    * @return the value
    * @since 4.0.0
    */
-  @NotNull String value();
+  @NotNull @KeyPattern.Value String value();
 
   /**
    * Returns the string representation of this key.
@@ -177,5 +278,10 @@ public interface Key extends Comparable<Key>, Examinable, Namespaced {
   @Override
   default int compareTo(final @NotNull Key that) {
     return comparator().compare(this, that);
+  }
+
+  @Override
+  default @NotNull Key key() {
+    return this;
   }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,8 +32,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TitleTimesTest {
 
-  private final Duration d0 = Duration.ofMillis(1000);
-  private final Duration d1 = Duration.ofMillis(2000);
+  private final Duration d0 = Duration.ofSeconds(1);
+  private final Duration d1 = Duration.ofSeconds(2);
   private final Duration d2 = Duration.ofMillis(1234);
 
   @Test

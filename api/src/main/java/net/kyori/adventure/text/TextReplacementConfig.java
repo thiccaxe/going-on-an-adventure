@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -78,7 +78,7 @@ public interface TextReplacementConfig extends Buildable<TextReplacementConfig, 
      */
 
     /**
-     * Match against the literal string provided.
+     * Set this builder to match only the literal string provided.
      *
      * <p>This will <b>NOT</b> be parsed as a regular expression.</p>
      *
@@ -92,7 +92,7 @@ public interface TextReplacementConfig extends Buildable<TextReplacementConfig, 
     }
 
     /**
-     * Compile the provided input as a {@link Pattern} and match against it.
+     * Compile the provided input as a {@link Pattern} and set it as the match to test against.
      *
      * @param pattern the regex pattern to match
      * @return this builder

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2023 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,12 +24,15 @@
 package net.kyori.adventure.text.minimessage.tag.resolver;
 
 import java.util.Map;
+import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.Context;
+import net.kyori.adventure.text.minimessage.internal.serializer.ClaimConsumer;
+import net.kyori.adventure.text.minimessage.internal.serializer.SerializableResolver;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class EmptyTagResolver implements TagResolver, MappableResolver {
+final class EmptyTagResolver implements TagResolver, MappableResolver, SerializableResolver {
   static final EmptyTagResolver INSTANCE = new EmptyTagResolver();
 
   private EmptyTagResolver() {
@@ -48,5 +51,9 @@ final class EmptyTagResolver implements TagResolver, MappableResolver {
   @Override
   public boolean contributeToMap(final @NotNull Map<String, Tag> map) {
     return true;
+  }
+
+  @Override
+  public void handle(final @NotNull Component serializable, final @NotNull ClaimConsumer consumer) {
   }
 }
