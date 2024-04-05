@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 import net.kyori.adventure.internal.Internals;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.util.TriState;
 import net.kyori.examination.Examinable;
 import net.kyori.examination.ExaminableProperty;
 import org.jetbrains.annotations.NotNull;
@@ -65,6 +66,14 @@ final class TranslationRegistryImpl implements Examinable, TranslationRegistry {
   @Override
   public boolean contains(final @NotNull String key) {
     return this.translations.containsKey(key);
+  }
+
+  @Override
+  public @NotNull TriState hasAnyTranslations() {
+    if (!this.translations.isEmpty()) {
+      return TriState.TRUE;
+    }
+    return TriState.FALSE;
   }
 
   @Override

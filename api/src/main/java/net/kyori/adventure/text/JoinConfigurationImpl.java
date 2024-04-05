@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,6 +41,7 @@ final class JoinConfigurationImpl implements JoinConfiguration {
   static final JoinConfigurationImpl NULL = new JoinConfigurationImpl();
 
   static final JoinConfiguration STANDARD_NEW_LINES = JoinConfiguration.separator(Component.newline());
+  static final JoinConfiguration STANDARD_SPACES = JoinConfiguration.separator(Component.space());
   static final JoinConfiguration STANDARD_COMMA_SEPARATED = JoinConfiguration.separator(Component.text(","));
   static final JoinConfiguration STANDARD_COMMA_SPACE_SEPARATED = JoinConfiguration.separator(Component.text(", "));
   static final JoinConfiguration STANDARD_ARRAY_LIKE = JoinConfiguration.builder()

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,9 +42,11 @@ import net.kyori.adventure.text.SelectorComponent;
 import net.kyori.adventure.text.StorageNBTComponent;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.TranslationArgument;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.translation.Translator;
+import net.kyori.adventure.util.TriState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -79,9 +81,13 @@ public abstract class TranslatableComponentRenderer<C> extends AbstractComponent
 
       @Override
       protected @NotNull Component renderTranslatable(final @NotNull TranslatableComponent component, final @NotNull Locale context) {
-        final @Nullable Component translated = source.translate(component, context);
-        if (translated != null) return translated;
-        return super.renderTranslatable(component, context);
+        final TriState anyTranslations = source.hasAnyTranslations();
+        if (anyTranslations == TriState.TRUE || anyTranslations == TriState.NOT_SET) {
+          final @Nullable Component translated = source.translate(component, context);
+          if (translated != null) return translated;
+          return super.renderTranslatable(component, context);
+        }
+        return component;
       }
     };
   }
@@ -179,17 +185,20 @@ public abstract class TranslatableComponentRenderer<C> extends AbstractComponent
 
       final TranslatableComponent.Builder builder = Component.translatable()
         .key(component.key()).fallback(component.fallback());
-      if (!component.args().isEmpty()) {
-        final List<Component> args = new ArrayList<>(component.args());
+      if (!component.arguments().isEmpty()) {
+        final List<TranslationArgument> args = new ArrayList<>(component.arguments());
         for (int i = 0, size = args.size(); i < size; i++) {
-          args.set(i, this.render(args.get(i), context));
+          final TranslationArgument arg = args.get(i);
+          if (arg.value() instanceof Component) {
+            args.set(i, TranslationArgument.component(this.render(((Component) arg.value()), context)));
+          }
         }
-        builder.args(args);
+        builder.arguments(args);
       }
       return this.mergeStyleAndOptionallyDeepRender(component, builder, context);
     }
 
-    final List<Component> args = component.args();
+    final List<TranslationArgument> args = component.arguments();
 
     final TextComponent.Builder builder = Component.text();
     this.mergeStyle(component, builder, context);
@@ -208,7 +217,12 @@ public abstract class TranslatableComponentRenderer<C> extends AbstractComponent
       final int end = it.getRunLimit();
       final Integer index = (Integer) it.getAttribute(MessageFormat.Field.ARGUMENT);
       if (index != null) {
-        builder.append(this.render(args.get(index), context));
+        final TranslationArgument arg = args.get(index);
+        if (arg.value() instanceof Component) {
+          builder.append(this.render(arg.asComponent(), context));
+        } else {
+          builder.append(arg.asComponent()); // todo: number rendering?
+        }
       } else {
         builder.append(Component.text(sb.substring(it.getIndex(), end)));
       }

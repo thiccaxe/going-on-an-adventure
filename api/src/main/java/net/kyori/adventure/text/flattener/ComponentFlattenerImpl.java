@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,7 +47,11 @@ final class ComponentFlattenerImpl implements ComponentFlattener {
   @SuppressWarnings("deprecation")
   static final ComponentFlattener BASIC = new BuilderImpl()
     .mapper(KeybindComponent.class, component -> component.keybind()) // IntelliJ is wrong here, this is fine
-    .mapper(ScoreComponent.class, ScoreComponent::value) // Removed in Vanilla 1.16, but we keep it for backwards compat
+    .mapper(ScoreComponent.class, component -> {
+      // Removed in Vanilla 1.16, but we keep it for backwards compat
+      final @Nullable String value = component.value();
+      return value != null ? value : "";
+    })
     .mapper(SelectorComponent.class, SelectorComponent::pattern)
     .mapper(TextComponent.class, TextComponent::content)
     .mapper(TranslatableComponent.class, component -> {
@@ -95,7 +99,7 @@ final class ComponentFlattenerImpl implements ComponentFlattener {
         flattener.handle(input, listener, depth + 1);
       }
 
-      if (!input.children().isEmpty()) {
+      if (!input.children().isEmpty() && listener.shouldContinue()) {
         for (final Component child : input.children()) {
           this.flatten0(child, listener, depth + 1);
         }

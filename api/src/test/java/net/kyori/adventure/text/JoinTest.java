@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -270,6 +270,21 @@ class JoinTest {
         .append(Component.newline())
         .append(Component.text("line 2"))
         .append(Component.newline())
+        .append(Component.text("line 3"))
+        .build(),
+      result
+    );
+  }
+
+  @Test
+  final void testStandardJoinConfigurationsSpaces() {
+    final Component result = Component.join(JoinConfiguration.spaces(), Component.text("line 1"), Component.text("line 2"), Component.text("line 3"));
+    assertEquals(
+      Component.text()
+        .append(Component.text("line 1"))
+        .append(Component.space())
+        .append(Component.text("line 2"))
+        .append(Component.space())
         .append(Component.text("line 3"))
         .build(),
       result

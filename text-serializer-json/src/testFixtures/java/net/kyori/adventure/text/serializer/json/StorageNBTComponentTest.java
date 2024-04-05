@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,10 +43,10 @@ final class StorageNBTComponentTest extends SerializerTest {
   @Test
   void testWithInterpret() {
     this.testObject(
-      Component.storageNBT().nbtPath("abc").storage(Key.key("doom:apple")).build(),
+      Component.storageNBT().nbtPath("abc").storage(Key.key("doom:apple")).interpret(true).build(),
       json -> {
         json.addProperty(JSONComponentConstants.NBT, "abc");
-        json.addProperty(JSONComponentConstants.NBT_INTERPRET, false);
+        json.addProperty(JSONComponentConstants.NBT_INTERPRET, true);
         json.addProperty(JSONComponentConstants.NBT_STORAGE, "doom:apple");
       }
     );

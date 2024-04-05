@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ final class ShowEntitySerializer extends TypeAdapter<HoverEvent.ShowEntity> {
       if (fieldName.equals(SHOW_ENTITY_TYPE)) {
         type = this.gson.fromJson(in, SerializerFactory.KEY_TYPE);
       } else if (fieldName.equals(SHOW_ENTITY_ID)) {
-        id = UUID.fromString(in.nextString());
+        id = this.gson.fromJson(in, SerializerFactory.UUID_TYPE);
       } else if (fieldName.equals(SHOW_ENTITY_NAME)) {
         name = this.gson.fromJson(in, SerializerFactory.COMPONENT_TYPE);
       } else {
@@ -87,7 +87,7 @@ final class ShowEntitySerializer extends TypeAdapter<HoverEvent.ShowEntity> {
     this.gson.toJson(value.type(), SerializerFactory.KEY_TYPE, out);
 
     out.name(SHOW_ENTITY_ID);
-    out.value(value.id().toString());
+    this.gson.toJson(value.id(), SerializerFactory.UUID_TYPE, out);
 
     final @Nullable Component name = value.name();
     if (name != null) {

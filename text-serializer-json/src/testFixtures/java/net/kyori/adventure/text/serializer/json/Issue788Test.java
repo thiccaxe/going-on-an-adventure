@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ final class Issue788Test extends SerializerTest {
             object.addProperty(JSONComponentConstants.COLOR, "#FF00FF");
             object.addProperty(JSONComponentConstants.TEXT, "PREPEND>");
           }));
-          extra.add(object(object -> object.addProperty(JSONComponentConstants.TEXT, "/sign test")));
+          extra.add("/sign test");
           extra.add(object(object -> {
             object.addProperty(JSONComponentConstants.COLOR, "#FF00FF");
             object.addProperty(JSONComponentConstants.TEXT, "<APPEND");

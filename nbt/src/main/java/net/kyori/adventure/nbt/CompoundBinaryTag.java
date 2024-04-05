@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -90,6 +90,14 @@ public interface CompoundBinaryTag extends BinaryTag, CompoundTagSetter<Compound
    * @since 4.0.0
    */
   @Nullable BinaryTag get(final String key);
+
+  /**
+   * Gets the number of elements in the compound.
+   *
+   * @return the number of elements in the compound
+   * @since 4.15.0
+   */
+  int size();
 
   /**
    * Gets a boolean.

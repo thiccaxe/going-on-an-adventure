@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -266,6 +266,21 @@ public interface Key extends Comparable<Key>, Examinable, Namespaced, Keyed {
    * @since 4.0.0
    */
   @NotNull String asString();
+
+  /**
+   * Returns the string representation of this key in minimal form.
+   *
+   * <p>If the {@link #namespace()} of this key is {@link #MINECRAFT_NAMESPACE}, only the {@link #value()} will be returned.</p>
+   *
+   * @return the string representation
+   * @since 4.15.0
+   */
+  default @NotNull String asMinimalString() {
+    if (this.namespace().equals(MINECRAFT_NAMESPACE)) {
+      return this.value();
+    }
+    return this.asString();
+  }
 
   @Override
   default @NotNull Stream<? extends ExaminableProperty> examinableProperties() {

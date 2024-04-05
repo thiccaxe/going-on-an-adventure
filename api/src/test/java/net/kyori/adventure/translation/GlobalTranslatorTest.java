@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -123,7 +123,7 @@ class GlobalTranslatorTest {
       return (component.key().equals("otherDummy") && locale.equals(Locale.US))
         ? Component.text()
           .append(Component.text("Hello "))
-          .append(component.args().isEmpty() ? Component.text("{0}") : component.args().get(0))
+          .append(component.arguments().isEmpty() ? Component.text("{0}") : component.arguments().get(0))
           .append(Component.text("!"))
           .build()
         : null;

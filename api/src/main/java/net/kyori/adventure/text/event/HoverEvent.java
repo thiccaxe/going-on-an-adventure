@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -900,6 +900,12 @@ public final class HoverEvent<V> implements Examinable, HoverEventSource<V>, Sty
       return this.name;
     }
 
+    /**
+     * Type-specific renderer.
+     *
+     * @param <V> the value type
+     * @since 4.0.0
+     */
     @FunctionalInterface
     interface Renderer<V> {
       <C> @NotNull V render(final @NotNull ComponentRenderer<C> renderer, final @NotNull C context, final @NotNull V value);

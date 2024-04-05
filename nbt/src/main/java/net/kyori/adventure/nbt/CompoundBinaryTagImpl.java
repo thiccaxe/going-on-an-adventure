@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,6 +61,11 @@ final class CompoundBinaryTagImpl extends AbstractBinaryTag implements CompoundB
   @Override
   public @Nullable BinaryTag get(final String key) {
     return this.tags.get(key);
+  }
+
+  @Override
+  public int size() {
+    return this.tags.size();
   }
 
   @Override

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2024 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -112,7 +112,7 @@ class TranslationRegistryTest {
       RENDERER.render(
         Component.translatable()
           .key("cats")
-          .args(
+          .arguments(
             Component.text("kashike"),
             Component.text("lucko")
           )
@@ -153,7 +153,7 @@ class TranslationRegistryTest {
           .append(
             Component.translatable()
               .key("cats")
-              .args(
+              .arguments(
                 Component.text("kashike"),
                 Component.text("lucko")
               )
@@ -173,7 +173,7 @@ class TranslationRegistryTest {
   void testUnknownTranslatableWithKnownArgsAndChildren() {
     assertEquals(
       Component.translatable("some.unknown.key")
-        .args(
+        .arguments(
           Component.text("")
             .append(Component.text("kashike"))
             .append(Component.text(" and '"))
@@ -183,9 +183,9 @@ class TranslationRegistryTest {
         .append(Component.text("This is a test.")),
       RENDERER.render(
         Component.translatable("some.unknown.key")
-          .args(ImmutableList.of(
+          .arguments(ImmutableList.of(
             Component.translatable("cats")
-              .args(
+              .arguments(
                 Component.text("kashike"),
                 Component.text("lucko")
               )
